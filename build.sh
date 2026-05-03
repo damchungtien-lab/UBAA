@@ -7,6 +7,9 @@ tar -xzf /tmp/jdk.tar.gz -C /tmp
 export JAVA_HOME=/tmp/jdk-21.0.6+7
 export PATH=$JAVA_HOME/bin:$PATH
 
+# Increase Node.js memory limit for webpack bundling
+export NODE_OPTIONS="--max-old-space-size=7168"
+
 # Build
 chmod +x gradlew
 ./gradlew :composeApp:jsBrowserDistribution --no-daemon --stacktrace
