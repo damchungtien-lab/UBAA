@@ -1,7 +1,7 @@
 package cn.edu.ubaa.ui.screens.menu
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -222,15 +222,16 @@ private fun HomeOverviewHero(
   ) {
     Box(
         modifier =
-            Modifier.fillMaxWidth().background(
-                Brush.linearGradient(
-                    colors =
-                        listOf(
-                            MaterialTheme.colorScheme.secondary,
-                            MaterialTheme.colorScheme.primary,
-                        )
+            Modifier.fillMaxWidth()
+                .background(
+                    Brush.linearGradient(
+                        colors =
+                            listOf(
+                                MaterialTheme.colorScheme.secondary,
+                                MaterialTheme.colorScheme.primary,
+                            )
+                    )
                 )
-            )
     ) {
       Column(
           modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 20.dp),

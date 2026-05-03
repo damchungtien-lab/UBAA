@@ -101,15 +101,18 @@ fun AdvancedFeaturesScreen(
 
   Column(
       modifier =
-          modifier.fillMaxSize().background(
-              Brush.verticalGradient(
-                  colors =
-                      listOf(
-                          MaterialTheme.colorScheme.background,
-                          MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.26f),
-                      )
+          modifier
+              .fillMaxSize()
+              .background(
+                  Brush.verticalGradient(
+                      colors =
+                          listOf(
+                              MaterialTheme.colorScheme.background,
+                              MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.26f),
+                          )
+                  )
               )
-          ).padding(16.dp),
+              .padding(16.dp),
       verticalArrangement = Arrangement.spacedBy(16.dp),
   ) {
     FeatureHubHeader(
@@ -126,32 +129,31 @@ fun AdvancedFeaturesScreen(
       items(features) { feature ->
         Card(
             modifier =
-                Modifier.fillMaxWidth()
-                    .heightIn(min = 188.dp)
-                    .clickable {
-                      when (feature.id) {
-                        "signin" -> onSigninClick()
-                        "cgyy" -> onCgyyClick()
-                        "ygdk" -> onYgdkClick()
-                        "evaluation" -> onEvaluationClick()
-                        "vault" -> onVaultClick()
-                      }
-                    },
+                Modifier.fillMaxWidth().heightIn(min = 188.dp).clickable {
+                  when (feature.id) {
+                    "signin" -> onSigninClick()
+                    "cgyy" -> onCgyyClick()
+                    "ygdk" -> onYgdkClick()
+                    "evaluation" -> onEvaluationClick()
+                    "vault" -> onVaultClick()
+                  }
+                },
             shape = RoundedCornerShape(28.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         ) {
           Box(
               modifier =
-                  Modifier.fillMaxSize().background(
-                      Brush.linearGradient(
-                          colors =
-                              listOf(
-                                  feature.accent.copy(alpha = 0.18f),
-                                  MaterialTheme.colorScheme.surface,
-                              )
+                  Modifier.fillMaxSize()
+                      .background(
+                          Brush.linearGradient(
+                              colors =
+                                  listOf(
+                                      feature.accent.copy(alpha = 0.18f),
+                                      MaterialTheme.colorScheme.surface,
+                                  )
+                          )
                       )
-                  )
           ) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(18.dp),

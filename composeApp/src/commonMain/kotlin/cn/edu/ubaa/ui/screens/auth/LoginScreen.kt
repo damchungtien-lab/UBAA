@@ -24,8 +24,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -76,24 +76,25 @@ fun LoginScreen(
   val uriHandler = LocalUriHandler.current
   BoxWithConstraints(
       modifier =
-          modifier.fillMaxSize().background(
-              brush =
-                  Brush.linearGradient(
-                      colors =
-                          listOf(
-                              MaterialTheme.colorScheme.background,
-                              MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.62f),
-                              MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.44f),
-                          )
-                  )
-          )
+          modifier
+              .fillMaxSize()
+              .background(
+                  brush =
+                      Brush.linearGradient(
+                          colors =
+                              listOf(
+                                  MaterialTheme.colorScheme.background,
+                                  MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.62f),
+                                  MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.44f),
+                              )
+                      )
+              )
   ) {
     val compactLayout = maxWidth < 920.dp
 
     if (compactLayout) {
       Column(
-          modifier =
-              Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),
+          modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),
           verticalArrangement = Arrangement.Center,
       ) {
         LoginShell(
@@ -255,7 +256,9 @@ private fun LoginHeroPanel(
       Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
             text = "UBAA",
-            style = if (compactLayout) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.displaySmall,
+            style =
+                if (compactLayout) MaterialTheme.typography.headlineLarge
+                else MaterialTheme.typography.displaySmall,
             color = Color.White,
             fontWeight = FontWeight.ExtraBold,
         )
@@ -610,10 +613,7 @@ private fun CaptchaImage(
   Card(
       modifier = modifier.clickable(enabled = !isRefreshing, onClick = onClick),
       shape = RoundedCornerShape(16.dp),
-      colors =
-          CardDefaults.cardColors(
-              containerColor = MaterialTheme.colorScheme.surfaceVariant
-          ),
+      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
   ) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
       if (isRefreshing) {

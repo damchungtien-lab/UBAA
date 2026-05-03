@@ -75,8 +75,7 @@ class VaultViewModel(
                 )
           }
           .onFailure {
-            _uiState.value =
-                _uiState.value.copy(isLoading = false, error = "涓诲瘑鐮佷笉姝ｇ‘鎴栦繚闄╁簱宸叉崯鍧?")
+            _uiState.value = _uiState.value.copy(isLoading = false, error = "涓诲瘑鐮佷笉姝ｇ‘鎴栦繚闄╁簱宸叉崯鍧?")
           }
     }
   }

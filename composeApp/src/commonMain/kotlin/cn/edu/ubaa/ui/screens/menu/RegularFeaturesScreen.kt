@@ -5,10 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -95,15 +93,18 @@ fun RegularFeaturesScreen(
 
   Column(
       modifier =
-          modifier.fillMaxSize().background(
-              Brush.verticalGradient(
-                  colors =
-                      listOf(
-                          MaterialTheme.colorScheme.background,
-                          MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.28f),
-                      )
+          modifier
+              .fillMaxSize()
+              .background(
+                  Brush.verticalGradient(
+                      colors =
+                          listOf(
+                              MaterialTheme.colorScheme.background,
+                              MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.28f),
+                          )
+                  )
               )
-          ).padding(16.dp),
+              .padding(16.dp),
       verticalArrangement = Arrangement.spacedBy(16.dp),
   ) {
     FeatureHubHeader(
@@ -176,25 +177,23 @@ private fun FeatureAccentCard(
     onClick: () -> Unit,
 ) {
   Card(
-      modifier =
-          Modifier.fillMaxWidth()
-              .heightIn(min = 188.dp)
-              .clickable(onClick = onClick),
+      modifier = Modifier.fillMaxWidth().heightIn(min = 188.dp).clickable(onClick = onClick),
       shape = RoundedCornerShape(28.dp),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
       elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
   ) {
     Box(
         modifier =
-            Modifier.fillMaxSize().background(
-                Brush.linearGradient(
-                    colors =
-                        listOf(
-                            feature.accent.copy(alpha = 0.18f),
-                            MaterialTheme.colorScheme.surface,
-                        )
+            Modifier.fillMaxSize()
+                .background(
+                    Brush.linearGradient(
+                        colors =
+                            listOf(
+                                feature.accent.copy(alpha = 0.18f),
+                                MaterialTheme.colorScheme.surface,
+                            )
+                    )
                 )
-            )
     ) {
       Column(
           modifier = Modifier.fillMaxSize().padding(18.dp),
