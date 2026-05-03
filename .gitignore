@@ -99,3 +99,4 @@ REDIS_MIGRATION.md
 AGENTS.md
 todo.md
 .worktrees/
+.vercel
