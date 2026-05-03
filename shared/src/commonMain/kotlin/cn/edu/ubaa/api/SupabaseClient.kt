@@ -10,8 +10,12 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.put
 
 @Serializable
 data class SupabaseConfig(
@@ -78,7 +82,11 @@ object SupabaseClient {
             filters.forEach { (key, value) -> parameter(key, value) }
           }
       if (resp.status == HttpStatusCode.OK) {
-        Result.success(Json.parseToJsonElement(resp.body<String>()).jsonObject)
+        val body = resp.body<String>()
+        val array = Json.parseToJsonElement(body).jsonArray
+        // Wrap in {data: [...]} format for compatibility
+        val wrapped = buildJsonObject { put("data", array) }
+        Result.success(wrapped)
       } else {
         Result.failure(Exception("Select failed: ${resp.status}"))
       }
