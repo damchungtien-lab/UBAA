@@ -1,6 +1,7 @@
 package cn.edu.ubaa.ui.screens.menu
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AssignmentTurnedIn
@@ -36,6 +38,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -78,6 +81,15 @@ internal fun HomeScreen(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+      item {
+        HomeOverviewHero(
+            todayLabel = "${today.month.ordinal + 1} 月 ${today.day} 日",
+            classCount = sortedClasses.size,
+            todoCount = todoItems.size,
+            isBusy = isLoading || todoLoading,
+        )
+      }
+
       item {
         Column(modifier = Modifier.padding(top = 16.dp)) {
           Row(
@@ -192,6 +204,82 @@ internal fun HomeScreen(
         state = pullRefreshState,
         modifier = Modifier.align(Alignment.TopCenter),
     )
+  }
+}
+
+@Composable
+private fun HomeOverviewHero(
+    todayLabel: String,
+    classCount: Int,
+    todoCount: Int,
+    isBusy: Boolean,
+) {
+  Surface(
+      modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+      shape = RoundedCornerShape(28.dp),
+      color = Color.Transparent,
+      shadowElevation = 12.dp,
+  ) {
+    Box(
+        modifier =
+            Modifier.fillMaxWidth().background(
+                Brush.linearGradient(
+                    colors =
+                        listOf(
+                            MaterialTheme.colorScheme.secondary,
+                            MaterialTheme.colorScheme.primary,
+                        )
+                )
+            )
+    ) {
+      Column(
+          modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 20.dp),
+          verticalArrangement = Arrangement.spacedBy(14.dp),
+      ) {
+        Text(
+            text = "校园操作台",
+            style = MaterialTheme.typography.labelLarge,
+            color = Color.White.copy(alpha = 0.8f),
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(
+            text = todayLabel,
+            style = MaterialTheme.typography.headlineSmall,
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+          HomeHeroMetric(label = "今日课程", value = classCount.toString())
+          HomeHeroMetric(label = "待办事项", value = todoCount.toString())
+          HomeHeroMetric(label = "状态", value = if (isBusy) "同步中" else "就绪")
+        }
+      }
+    }
+  }
+}
+
+@Composable
+private fun HomeHeroMetric(label: String, value: String) {
+  Surface(
+      color = Color.White.copy(alpha = 0.14f),
+      shape = RoundedCornerShape(18.dp),
+  ) {
+    Column(
+        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+      Text(
+          text = label,
+          style = MaterialTheme.typography.labelSmall,
+          color = Color.White.copy(alpha = 0.74f),
+      )
+      Text(
+          text = value,
+          style = MaterialTheme.typography.titleMedium,
+          color = Color.White,
+          fontWeight = FontWeight.Bold,
+      )
+    }
   }
 }
 

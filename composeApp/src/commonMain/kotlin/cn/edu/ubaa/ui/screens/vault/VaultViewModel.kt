@@ -6,6 +6,8 @@ import cn.edu.ubaa.api.VaultApi
 import cn.edu.ubaa.model.dto.VaultPlainEntryDto
 import cn.edu.ubaa.model.dto.VaultPlainStateDto
 import cn.edu.ubaa.model.dto.VaultRecordDto
+import cn.edu.ubaa.model.dto.VaultSaveRequest
+import cn.edu.ubaa.model.dto.VaultSaveResponse
 import cn.edu.ubaa.vault.VaultCrypto
 import kotlin.random.Random
 import kotlin.time.Clock
@@ -24,7 +26,13 @@ data class VaultUiState(
 )
 
 class VaultViewModel(
-    private val api: VaultApi = VaultApi(),
+    private val loadVaultRequest: suspend () -> Result<VaultRecordDto?> = { VaultApi().getVault() },
+    private val saveVaultRequest: suspend (VaultSaveRequest) -> Result<VaultSaveResponse> = {
+      VaultApi().saveVault(it)
+    },
+    private val deleteVaultRequest: suspend () -> Result<Map<String, String>> = {
+      VaultApi().deleteVault()
+    },
 ) : ViewModel() {
   private val _uiState = MutableStateFlow(VaultUiState())
   val uiState: StateFlow<VaultUiState> = _uiState.asStateFlow()
@@ -33,19 +41,20 @@ class VaultViewModel(
   fun load() {
     viewModelScope.launch {
       _uiState.value = _uiState.value.copy(isLoading = true, error = null, message = null)
-      api.getVault()
+      loadVaultRequest()
           .onSuccess { record ->
+            masterPassword = null
             _uiState.value =
                 VaultUiState(
                     isLoading = false,
                     record = record,
-                    unlocked = record == null,
+                    unlocked = false,
                     entries = emptyList(),
                 )
           }
           .onFailure { error ->
             _uiState.value =
-                _uiState.value.copy(isLoading = false, error = error.message ?: "保险库加载失败")
+                _uiState.value.copy(isLoading = false, error = error.message ?: "淇濋櫓搴撳姞杞藉け璐?")
           }
     }
   }
@@ -66,7 +75,8 @@ class VaultViewModel(
                 )
           }
           .onFailure {
-            _uiState.value = _uiState.value.copy(isLoading = false, error = "主密码不正确或保险库已损坏")
+            _uiState.value =
+                _uiState.value.copy(isLoading = false, error = "涓诲瘑鐮佷笉姝ｇ‘鎴栦繚闄╁簱宸叉崯鍧?")
           }
     }
   }
@@ -109,7 +119,7 @@ class VaultViewModel(
   fun save() {
     val password = masterPassword
     if (password.isNullOrBlank()) {
-      _uiState.value = _uiState.value.copy(error = "请先解锁保险库")
+      _uiState.value = _uiState.value.copy(error = "璇峰厛瑙ｉ攣淇濋櫓搴?")
       return
     }
     viewModelScope.launch {
@@ -124,21 +134,21 @@ class VaultViewModel(
           }
           .fold(
               onSuccess = { request ->
-                api.saveVault(request)
+                saveVaultRequest(request)
                     .onSuccess { response ->
                       _uiState.value =
                           _uiState.value.copy(
                               isLoading = false,
                               record = response.record,
                               unlocked = true,
-                              message = "保险库已保存",
+                              message = "淇濋櫓搴撳凡淇濆瓨",
                           )
                     }
                     .onFailure { error ->
                       _uiState.value =
                           _uiState.value.copy(
                               isLoading = false,
-                              error = error.message ?: "保险库保存失败",
+                              error = error.message ?: "淇濋櫓搴撲繚瀛樺け璐?",
                           )
                     }
               },
@@ -146,7 +156,7 @@ class VaultViewModel(
                 _uiState.value =
                     _uiState.value.copy(
                         isLoading = false,
-                        error = error.message ?: "保险库加密失败",
+                        error = error.message ?: "淇濋櫓搴撳姞瀵嗗け璐?",
                     )
               },
           )
@@ -161,10 +171,23 @@ class VaultViewModel(
   fun resetVault() {
     viewModelScope.launch {
       _uiState.value = _uiState.value.copy(isLoading = true, error = null, message = null)
-      api.deleteVault().onSuccess {
-        masterPassword = null
-        _uiState.value = VaultUiState(isLoading = false, unlocked = true, message = "保险库已重置")
-      }
+      deleteVaultRequest()
+          .onSuccess {
+            masterPassword = null
+            _uiState.value =
+                VaultUiState(
+                    isLoading = false,
+                    unlocked = false,
+                    message = "淇濋櫓搴撳凡閲嶇疆",
+                )
+          }
+          .onFailure { error ->
+            _uiState.value =
+                _uiState.value.copy(
+                    isLoading = false,
+                    error = error.message ?: "淇濋櫓搴撻噸缃け璐?",
+                )
+          }
     }
   }
 }

@@ -15,68 +15,64 @@ import androidx.compose.ui.unit.dp
 
 private val LightColorScheme =
     lightColorScheme(
-        primary = Color(0xFF006B5F),
+        primary = Color(0xFF0D5B63),
         onPrimary = Color.White,
-        primaryContainer = Color(0xFFC7F1E8),
-        onPrimaryContainer = Color(0xFF05201C),
-        secondary = Color(0xFF405A7A),
+        primaryContainer = Color(0xFFD7EFF2),
+        onPrimaryContainer = Color(0xFF001F23),
+        secondary = Color(0xFF233E53),
         onSecondary = Color.White,
-        secondaryContainer = Color(0xFFD8E5F8),
-        onSecondaryContainer = Color(0xFF0D1D32),
-        tertiary = Color(0xFF8A5A00),
+        secondaryContainer = Color(0xFFD8E7F4),
+        onSecondaryContainer = Color(0xFF0B1F2C),
+        tertiary = Color(0xFFB36A1C),
         onTertiary = Color.White,
-        tertiaryContainer = Color(0xFFFFDDA6),
-        onTertiaryContainer = Color(0xFF2B1700),
-        background = Color(0xFFF7F9FB),
-        onBackground = Color(0xFF18201F),
-        surface = Color(0xFFFFFFFF),
-        onSurface = Color(0xFF18201F),
-        surfaceVariant = Color(0xFFE8EEEF),
-        onSurfaceVariant = Color(0xFF44504F),
-        outline = Color(0xFF758180),
+        tertiaryContainer = Color(0xFFFFDDB5),
+        onTertiaryContainer = Color(0xFF2D1700),
+        background = Color(0xFFF2F5F6),
+        onBackground = Color(0xFF162124),
+        surface = Color(0xFFFCFEFE),
+        onSurface = Color(0xFF162124),
+        surfaceVariant = Color(0xFFE2EAEC),
+        onSurfaceVariant = Color(0xFF44545A),
+        outline = Color(0xFF76868D),
         error = Color(0xFFBA1A1A),
     )
 
 private val DarkColorScheme =
     darkColorScheme(
-        primary = Color(0xFF7BD7C7),
-        onPrimary = Color(0xFF003731),
-        primaryContainer = Color(0xFF005047),
-        onPrimaryContainer = Color(0xFFC7F1E8),
-        secondary = Color(0xFFB8C8E0),
-        onSecondary = Color(0xFF102A49),
-        secondaryContainer = Color(0xFF29425F),
-        onSecondaryContainer = Color(0xFFD8E5F8),
-        tertiary = Color(0xFFFFC86D),
-        onTertiary = Color(0xFF492900),
-        tertiaryContainer = Color(0xFF684000),
-        onTertiaryContainer = Color(0xFFFFDDA6),
-        background = Color(0xFF101414),
-        onBackground = Color(0xFFE0E3E2),
-        surface = Color(0xFF171B1B),
-        onSurface = Color(0xFFE0E3E2),
-        surfaceVariant = Color(0xFF3F4948),
-        onSurfaceVariant = Color(0xFFBFC9C7),
-        outline = Color(0xFF899391),
+        primary = Color(0xFF86D5DD),
+        onPrimary = Color(0xFF00373D),
+        primaryContainer = Color(0xFF024B53),
+        onPrimaryContainer = Color(0xFFD7EFF2),
+        secondary = Color(0xFFB9CBDB),
+        onSecondary = Color(0xFF0E2738),
+        secondaryContainer = Color(0xFF294255),
+        onSecondaryContainer = Color(0xFFD8E7F4),
+        tertiary = Color(0xFFFFC782),
+        onTertiary = Color(0xFF4A2800),
+        tertiaryContainer = Color(0xFF6A3F00),
+        onTertiaryContainer = Color(0xFFFFDDB5),
+        background = Color(0xFF0F1518),
+        onBackground = Color(0xFFDCE4E6),
+        surface = Color(0xFF161D20),
+        onSurface = Color(0xFFDCE4E6),
+        surfaceVariant = Color(0xFF39474D),
+        onSurfaceVariant = Color(0xFFBECBD1),
+        outline = Color(0xFF87969D),
         error = Color(0xFFFFB4AB),
     )
 
 private val AppShapes =
     Shapes(
-        extraSmall = RoundedCornerShape(4.dp),
-        small = RoundedCornerShape(6.dp),
-        medium = RoundedCornerShape(8.dp),
-        large = RoundedCornerShape(8.dp),
-        extraLarge = RoundedCornerShape(8.dp),
+        extraSmall = RoundedCornerShape(8.dp),
+        small = RoundedCornerShape(12.dp),
+        medium = RoundedCornerShape(18.dp),
+        large = RoundedCornerShape(28.dp),
+        extraLarge = RoundedCornerShape(36.dp),
     )
 
 @Composable
 fun UBAATheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-  val colorScheme =
-      when {
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-      }
+  val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
   MaterialTheme(colorScheme = colorScheme, typography = getAppTypography(), shapes = AppShapes) {
     Surface(modifier = Modifier.fillMaxSize(), color = colorScheme.background) { content() }
