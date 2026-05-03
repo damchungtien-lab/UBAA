@@ -1,0 +1,29 @@
+{
+  "buildCommand": "chmod +x gradlew; ./gradlew :composeApp:jsBrowserDistribution --no-daemon",
+  "outputDirectory": "composeApp/build/dist/js/productionExecutable",
+  "installCommand": "",
+  "framework": null,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*\\.js)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(png|ico|svg|json|css|wasm))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    }
+  ]
+}

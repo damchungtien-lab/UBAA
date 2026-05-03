@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material3.*
@@ -23,6 +24,7 @@ fun BykcHomeScreen(
     onSelectCourseClick: () -> Unit,
     onMyCoursesClick: () -> Unit,
     onStatisticsClick: () -> Unit,
+    onAutoBookingClick: () -> Unit = {},
 ) {
   Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
     // Text(
@@ -59,6 +61,14 @@ fun BykcHomeScreen(
             description = "查看学时统计",
             icon = Icons.Default.BarChart,
             onClick = onStatisticsClick,
+        )
+      }
+      item {
+        BykcFeatureCard(
+            title = "自动预约",
+            description = "管理自动选课任务",
+            icon = Icons.Default.AutoAwesome,
+            onClick = onAutoBookingClick,
         )
       }
     }

@@ -1,13 +1,13 @@
 {
-  "name": "UBAA - Unified BUAA App",
+  "name": "UBAA - 智慧北航校园服务",
   "short_name": "UBAA",
   "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#1976d2",
-  "description": "Unified BUAA App for Students",
+  "background_color": "#f8fafc",
+  "theme_color": "#1A56DB",
+  "description": "智慧北航校园一站式服务平台",
   "icons": [
     {
       "src": "./pwa-icon-192.png",

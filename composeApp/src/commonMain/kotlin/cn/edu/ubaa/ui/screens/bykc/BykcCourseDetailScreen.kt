@@ -37,6 +37,8 @@ fun BykcCourseDetailScreen(
     onSignInClick: () -> Unit,
     onSignOutClick: () -> Unit,
     onClearMessage: () -> Unit = {},
+    onAutoBookClick: (() -> Unit)? = null,
+    hasAutoBookTask: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
   val snackbarHostState = remember { SnackbarHostState() }
@@ -381,6 +383,35 @@ fun BykcCourseDetailScreen(
                     Text("退选")
                   }
                 } else {
+                  val isPreview =
+                      course.courseSelectStartDate != null && localNow < course.courseSelectStartDate
+                  if (isPreview && onAutoBookClick != null) {
+                    if (hasAutoBookTask) {
+                      OutlinedButton(
+                          onClick = {},
+                          modifier = Modifier.fillMaxWidth(),
+                          enabled = false,
+                      ) {
+                        Icon(Icons.Default.AutoAwesome, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("已设置自动预约")
+                      }
+                    } else {
+                      Button(
+                          onClick = onAutoBookClick,
+                          modifier = Modifier.fillMaxWidth(),
+                          colors =
+                              ButtonDefaults.buttonColors(
+                                  containerColor = MaterialTheme.colorScheme.secondary
+                              ),
+                      ) {
+                        Icon(Icons.Default.AutoAwesome, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("自动预约 (开放时自动选课)")
+                      }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                  }
                   Button(
                       onClick = onSelectClick,
                       modifier = Modifier.fillMaxWidth(),

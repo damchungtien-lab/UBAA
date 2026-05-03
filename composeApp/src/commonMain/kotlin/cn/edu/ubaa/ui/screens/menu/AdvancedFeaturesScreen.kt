@@ -17,7 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AssignmentTurnedIn
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.HowToReg
-import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -45,6 +45,7 @@ fun AdvancedFeaturesScreen(
     onCgyyClick: () -> Unit,
     onEvaluationClick: () -> Unit,
     onYgdkClick: () -> Unit,
+    onVaultClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
   val features =
@@ -74,10 +75,10 @@ fun AdvancedFeaturesScreen(
               icon = Icons.Default.AssignmentTurnedIn,
           ),
           AdvancedFeatureItem(
-              id = "more",
-              title = "更多功能",
-              description = "更多高级功能正在开发中...",
-              icon = Icons.Default.MoreHoriz,
+              id = "vault",
+              title = "密码保管箱",
+              description = "安全管理您的账号密码",
+              icon = Icons.Default.Lock,
           ),
       )
 
@@ -96,6 +97,7 @@ fun AdvancedFeaturesScreen(
                 "cgyy" -> onCgyyClick()
                 "ygdk" -> onYgdkClick()
                 "evaluation" -> onEvaluationClick()
+                "vault" -> onVaultClick()
               }
             },
         )

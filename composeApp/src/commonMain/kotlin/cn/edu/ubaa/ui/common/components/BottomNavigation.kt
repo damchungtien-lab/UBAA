@@ -1,19 +1,16 @@
 package cn.edu.ubaa.ui.common.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
 
-enum class BottomNavTab {
-  HOME,
-  REGULAR,
-  ADVANCED,
-}
+enum class BottomNavTab { HOME, REGULAR, ADVANCED }
 
 @Composable
 fun BottomNavigation(
@@ -21,30 +18,69 @@ fun BottomNavigation(
     onTabSelected: (BottomNavTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-  NavigationBar(
-      modifier = modifier.fillMaxWidth(),
-      containerColor = MaterialTheme.colorScheme.surface,
-      contentColor = MaterialTheme.colorScheme.onSurface,
-  ) {
-    NavigationBarItem(
-        icon = { Icon(imageVector = Icons.Default.Home, contentDescription = "主页") },
-        label = { Text("主页") },
-        selected = currentTab == BottomNavTab.HOME,
-        onClick = { onTabSelected(BottomNavTab.HOME) },
-    )
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shadowElevation = 8.dp,
+        color = MaterialTheme.colorScheme.surface,
+    ) {
+        NavigationBar(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            tonalElevation = 0.dp,
+        ) {
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Home,
+                        contentDescription = "首页",
+                    )
+                },
+                label = { Text("首页") },
+                selected = currentTab == BottomNavTab.HOME,
+                onClick = { onTabSelected(BottomNavTab.HOME) },
+                colors =
+                    NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    ),
+            )
 
-    NavigationBarItem(
-        icon = { Icon(imageVector = Icons.AutoMirrored.Filled.List, contentDescription = "普通功能") },
-        label = { Text("普通功能") },
-        selected = currentTab == BottomNavTab.REGULAR,
-        onClick = { onTabSelected(BottomNavTab.REGULAR) },
-    )
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.GridView,
+                        contentDescription = "普通功能",
+                    )
+                },
+                label = { Text("普通功能") },
+                selected = currentTab == BottomNavTab.REGULAR,
+                onClick = { onTabSelected(BottomNavTab.REGULAR) },
+                colors =
+                    NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    ),
+            )
 
-    NavigationBarItem(
-        icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "高级功能") },
-        label = { Text("高级功能") },
-        selected = currentTab == BottomNavTab.ADVANCED,
-        onClick = { onTabSelected(BottomNavTab.ADVANCED) },
-    )
-  }
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Build,
+                        contentDescription = "高级功能",
+                    )
+                },
+                label = { Text("高级功能") },
+                selected = currentTab == BottomNavTab.ADVANCED,
+                onClick = { onTabSelected(BottomNavTab.ADVANCED) },
+                colors =
+                    NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    ),
+            )
+        }
+    }
 }

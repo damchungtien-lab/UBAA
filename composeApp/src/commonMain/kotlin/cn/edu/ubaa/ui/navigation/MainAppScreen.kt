@@ -55,6 +55,10 @@ import cn.edu.ubaa.ui.screens.ygdk.YgdkClockinFormScreen
 import cn.edu.ubaa.ui.screens.ygdk.YgdkHomeScreen
 import cn.edu.ubaa.ui.screens.ygdk.YgdkUiState
 import cn.edu.ubaa.ui.screens.ygdk.YgdkViewModel
+import cn.edu.ubaa.ui.screens.vault.VaultEntryScreen
+import cn.edu.ubaa.ui.screens.vault.VaultHomeScreen
+import cn.edu.ubaa.ui.screens.vault.VaultUnlockScreen
+import cn.edu.ubaa.ui.screens.vault.VaultViewModel
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.delay
@@ -77,6 +81,7 @@ enum class AppScreen {
   BYKC_DETAIL,
   BYKC_CHOSEN,
   BYKC_STATISTICS,
+  BYKC_AUTO_BOOKING,
   SIGNIN,
   CGYY_HOME,
   CGYY_RESERVE_PICKER,
@@ -89,6 +94,9 @@ enum class AppScreen {
   SPOC_ASSIGNMENT_DETAIL,
   YGDK_HOME,
   YGDK_FORM,
+  VAULT_UNLOCK,
+  VAULT_HOME,
+  VAULT_ENTRY,
 }
 
 /**
@@ -195,6 +203,13 @@ fun MainAppScreen(
         null
       }
   val ygdkUiState = ygdkViewModel?.uiState?.collectAsState()?.value ?: YgdkUiState()
+  val autoBookingViewModel: AutoBookingViewModel =
+      viewModel(key = "auto-booking-${userData.schoolid}") { AutoBookingViewModel(userId = userData.schoolid) }
+  val autoBookingUiState by autoBookingViewModel.uiState.collectAsState()
+  val vaultViewModel: VaultViewModel =
+      viewModel(key = "vault-${userData.schoolid}") { VaultViewModel() }
+  val vaultUiState by vaultViewModel.uiState.collectAsState()
+  var vaultEditEntryId by remember { mutableStateOf<String?>(null) }
 
   var selectedCourse by remember { mutableStateOf<CourseClass?>(null) }
   var selectedBykcCourseId by remember { mutableStateOf<Long?>(null) }
@@ -314,6 +329,7 @@ fun MainAppScreen(
               AppScreen.BYKC_DETAIL,
               AppScreen.BYKC_CHOSEN,
               AppScreen.BYKC_STATISTICS,
+              AppScreen.BYKC_AUTO_BOOKING,
               AppScreen.SIGNIN,
               AppScreen.CGYY_HOME,
               AppScreen.CGYY_RESERVE_PICKER,
@@ -322,7 +338,10 @@ fun MainAppScreen(
               AppScreen.CGYY_LOCK_CODE,
               AppScreen.EVALUATION,
               AppScreen.YGDK_HOME,
-              AppScreen.YGDK_FORM -> BottomNavTab.ADVANCED
+              AppScreen.YGDK_FORM,
+              AppScreen.VAULT_UNLOCK,
+              AppScreen.VAULT_HOME,
+              AppScreen.VAULT_ENTRY -> BottomNavTab.ADVANCED
               else -> null
             }
     tab?.let { selectedBottomTab = it }
@@ -349,6 +368,7 @@ fun MainAppScreen(
             AppScreen.BYKC_DETAIL,
             AppScreen.BYKC_CHOSEN,
             AppScreen.BYKC_STATISTICS,
+            AppScreen.BYKC_AUTO_BOOKING,
             AppScreen.SIGNIN,
             AppScreen.CGYY_HOME,
             AppScreen.CGYY_RESERVE_PICKER,
@@ -357,7 +377,10 @@ fun MainAppScreen(
             AppScreen.CGYY_LOCK_CODE,
             AppScreen.EVALUATION,
             AppScreen.YGDK_HOME,
-            AppScreen.YGDK_FORM -> BottomNavTab.ADVANCED
+            AppScreen.YGDK_FORM,
+            AppScreen.VAULT_UNLOCK,
+            AppScreen.VAULT_HOME,
+            AppScreen.VAULT_ENTRY -> BottomNavTab.ADVANCED
             else -> null
           }
       tab?.let { selectedBottomTab = it }
@@ -486,6 +509,7 @@ fun MainAppScreen(
         AppScreen.BYKC_DETAIL -> "课程详情"
         AppScreen.BYKC_CHOSEN -> "我的课程"
         AppScreen.BYKC_STATISTICS -> "课程统计"
+        AppScreen.BYKC_AUTO_BOOKING -> "自动预约管理"
         AppScreen.SIGNIN -> "课程签到"
         AppScreen.CGYY_HOME -> "研讨室预约"
         AppScreen.CGYY_RESERVE_PICKER -> "预约研讨室"
@@ -498,6 +522,9 @@ fun MainAppScreen(
         AppScreen.SPOC_ASSIGNMENT_DETAIL -> "作业详情"
         AppScreen.YGDK_HOME -> "阳光打卡"
         AppScreen.YGDK_FORM -> "新增打卡"
+        AppScreen.VAULT_UNLOCK -> "密码保管箱"
+        AppScreen.VAULT_HOME -> "密码保管箱"
+        AppScreen.VAULT_ENTRY -> "添加记录"
       }
 
   Box(modifier = modifier.fillMaxSize()) {
@@ -581,6 +608,17 @@ fun MainAppScreen(
                   onCgyyClick = { navigateTo(AppScreen.CGYY_HOME) },
                   onEvaluationClick = { navigateTo(AppScreen.EVALUATION) },
                   onYgdkClick = { navigateTo(AppScreen.YGDK_HOME) },
+                  onVaultClick = {
+                    val screen =
+                        if (vaultUiState.isConfigured && !vaultUiState.isUnlocked) {
+                          AppScreen.VAULT_UNLOCK
+                        } else if (vaultUiState.isUnlocked) {
+                          AppScreen.VAULT_HOME
+                        } else {
+                          AppScreen.VAULT_UNLOCK
+                        }
+                    navigateTo(screen)
+                  },
               )
           AppScreen.MY -> MyScreen(userInfo = userInfo)
           AppScreen.SETTINGS ->
@@ -617,8 +655,47 @@ fun MainAppScreen(
                     bykcViewModel.ensureStatisticsLoaded()
                     navigateTo(AppScreen.BYKC_STATISTICS)
                   },
+                  onAutoBookingClick = { navigateTo(AppScreen.BYKC_AUTO_BOOKING) },
               )
           AppScreen.BYKC_STATISTICS -> BykcStatisticsScreen(viewModel = bykcViewModel)
+          AppScreen.BYKC_AUTO_BOOKING ->
+              AutoBookingScreen(
+                  viewModel = autoBookingViewModel,
+                  onNavigateToCourse = { courseId ->
+                    selectedBykcCourseId = courseId
+                    selectedBykcCourseSnapshot = null
+                    bykcViewModel.loadCourseDetail(courseId)
+                    navigateTo(AppScreen.BYKC_DETAIL)
+                  },
+              )
+          AppScreen.VAULT_UNLOCK ->
+              VaultUnlockScreen(
+                  viewModel = vaultViewModel,
+                  onVaultReady = {
+                    if (vaultUiState.isUnlocked) navigateTo(AppScreen.VAULT_HOME)
+                  },
+              )
+          AppScreen.VAULT_HOME ->
+              VaultHomeScreen(
+                  viewModel = vaultViewModel,
+                  onAddEntry = { navigateTo(AppScreen.VAULT_ENTRY) },
+                  onEditEntry = { entryId ->
+                    vaultEditEntryId = entryId
+                    navigateTo(AppScreen.VAULT_ENTRY)
+                  },
+                  onLock = { navigateTo(AppScreen.VAULT_UNLOCK) },
+              )
+          AppScreen.VAULT_ENTRY ->
+              VaultEntryScreen(
+                  entry = vaultEditEntryId?.let { id ->
+                    vaultUiState.entries.find { it.id == id }
+                  },
+                  viewModel = vaultViewModel,
+                  onSave = {
+                    vaultEditEntryId = null
+                    navigateTo(AppScreen.VAULT_HOME)
+                  },
+              )
           AppScreen.SIGNIN -> SigninScreen(viewModel = signinViewModel)
           AppScreen.BYKC_COURSES ->
               BykcCoursesScreen(
@@ -672,6 +749,19 @@ fun MainAppScreen(
                     }
                   },
                   onClearMessage = { bykcViewModel.clearOperationMessage() },
+                  onAutoBookClick = {
+                    val course = bykcDetailState.course ?: return@BykcCourseDetailScreen
+                    autoBookingViewModel.addAutoBookTask(
+                        courseId = course.id,
+                        courseName = course.courseName,
+                        coursePosition = course.coursePosition,
+                        courseTeacher = course.courseTeacher,
+                        courseSelectStartDate = course.courseSelectStartDate,
+                        courseSelectEndDate = course.courseSelectEndDate,
+                    )
+                  },
+                  hasAutoBookTask =
+                      autoBookingUiState.activeTasks.any { it.courseId == selectedBykcCourseId },
               )
           AppScreen.BYKC_CHOSEN ->
               BykcChosenCoursesScreen(
@@ -780,6 +870,7 @@ fun MainAppScreen(
                   AppScreen.BYKC_DETAIL,
                   AppScreen.BYKC_CHOSEN,
                   AppScreen.BYKC_STATISTICS,
+                  AppScreen.BYKC_AUTO_BOOKING,
                   AppScreen.CLASSROOM_QUERY,
                   AppScreen.CGYY_HOME,
                   AppScreen.CGYY_RESERVE_PICKER,
@@ -791,6 +882,9 @@ fun MainAppScreen(
                   AppScreen.YGDK_FORM,
                   AppScreen.SPOC_ASSIGNMENTS,
                   AppScreen.SPOC_ASSIGNMENT_DETAIL,
+                  AppScreen.VAULT_UNLOCK,
+                  AppScreen.VAULT_HOME,
+                  AppScreen.VAULT_ENTRY,
               )
       ) {
         BottomNavigation(
