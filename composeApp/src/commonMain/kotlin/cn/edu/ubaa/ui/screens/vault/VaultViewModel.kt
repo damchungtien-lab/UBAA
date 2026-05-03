@@ -3,12 +3,12 @@ package cn.edu.ubaa.ui.screens.vault
 import androidx.lifecycle.ViewModel
 import cn.edu.ubaa.api.VaultEntry
 import cn.edu.ubaa.api.VaultStore
+import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlin.time.Clock
 
 data class VaultUiState(
     val isConfigured: Boolean = false,
