@@ -43,4 +43,3 @@ data class VaultPlainEntryDto(
 data class VaultPlainStateDto(
     val entries: List<VaultPlainEntryDto> = emptyList(),
 )
-

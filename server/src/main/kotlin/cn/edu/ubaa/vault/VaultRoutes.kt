@@ -18,7 +18,9 @@ fun Route.vaultRouting(
   val store by lazy(storeProvider)
   route("/api/v1/vault") {
     get {
-      val username = call.jwtUsername ?: return@get call.respondError(HttpStatusCode.Unauthorized, "invalid_token")
+      val username =
+          call.jwtUsername
+              ?: return@get call.respondError(HttpStatusCode.Unauthorized, "invalid_token")
       val record = store.get(username)
       if (record == null) {
         call.respondError(HttpStatusCode.NotFound, "vault_not_initialized", "密码保险库尚未初始化")
@@ -28,7 +30,9 @@ fun Route.vaultRouting(
     }
 
     put {
-      val username = call.jwtUsername ?: return@put call.respondError(HttpStatusCode.Unauthorized, "invalid_token")
+      val username =
+          call.jwtUsername
+              ?: return@put call.respondError(HttpStatusCode.Unauthorized, "invalid_token")
       val request =
           runCatching { call.receive<VaultSaveRequest>() }
               .getOrElse {

@@ -19,9 +19,15 @@ import org.slf4j.LoggerFactory
 class BykcAutoSelectScheduler(
     private val storeProvider: () -> BykcAutoSelectStore = { GlobalBykcAutoSelectStore.instance },
     private val bykcServiceProvider: () -> BykcService = { GlobalBykcService.instance },
-    private val notificationStoreProvider: () -> NotificationStore = { GlobalNotificationStore.instance },
-    private val pushDispatcherProvider: () -> PushNotificationDispatcher = { GlobalPushNotificationDispatcher.instance },
-    private val lockManagerProvider: () -> RedisDistributedLockManager = { GlobalDistributedLockManager.instance },
+    private val notificationStoreProvider: () -> NotificationStore = {
+      GlobalNotificationStore.instance
+    },
+    private val pushDispatcherProvider: () -> PushNotificationDispatcher = {
+      GlobalPushNotificationDispatcher.instance
+    },
+    private val lockManagerProvider: () -> RedisDistributedLockManager = {
+      GlobalDistributedLockManager.instance
+    },
     private val interval: Duration = 10.seconds,
     private val maxAttempts: Int = 3,
 ) {
@@ -60,39 +66,41 @@ class BykcAutoSelectScheduler(
   }
 
   private suspend fun executeJob(job: BykcAutoSelectJobRecord) {
-    bykcService.selectCourse(job.username, job.courseId).fold(
-        onSuccess = { message ->
-          val finalMessage = message.ifBlank { "选课成功" }
-          store.markSucceeded(job, finalMessage)
-          notify(
-              job = job,
-              type = "bykc_auto_select_succeeded",
-              title = "博雅抢课成功",
-              body = "${job.courseName} 已完成自动选课。",
-          )
-        },
-        onFailure = { error ->
-          val message = error.message?.takeIf(String::isNotBlank) ?: "选课失败，请稍后重试"
-          if (job.attempts < maxAttempts && !message.looksLikeSessionExpired()) {
-            val retryAt = Clock.System.now().toEpochMilliseconds() + 30_000L
-            store.rescheduleRetry(job, "第 ${job.attempts} 次尝试失败，稍后重试：$message", retryAt)
-          } else {
-            completeFailure(
-                job,
-                if (message.looksLikeSessionExpired()) "登录状态已失效，请重新登录后手动处理。"
-                else message,
-            )
-          }
-        },
-    )
+    bykcService
+        .selectCourse(job.username, job.courseId)
+        .fold(
+            onSuccess = { message ->
+              val finalMessage = message.ifBlank { "选课成功" }
+              store.markSucceeded(job, finalMessage)
+              notify(
+                  job = job,
+                  type = "bykc_auto_select_succeeded",
+                  title = "博雅抢课成功",
+                  body = "${job.courseName} 已完成自动选课。",
+              )
+            },
+            onFailure = { error ->
+              val message = error.message?.takeIf(String::isNotBlank) ?: "选课失败，请稍后重试"
+              if (job.attempts < maxAttempts && !message.looksLikeSessionExpired()) {
+                val retryAt = Clock.System.now().toEpochMilliseconds() + 30_000L
+                store.rescheduleRetry(job, "第 ${job.attempts} 次尝试失败，稍后重试：$message", retryAt)
+              } else {
+                completeFailure(
+                    job,
+                    if (message.looksLikeSessionExpired()) "登录状态已失效，请重新登录后手动处理。" else message,
+                )
+              }
+            },
+        )
   }
 
   private suspend fun completeFailure(job: BykcAutoSelectJobRecord, message: String) {
     store.markFailed(job, message)
     notify(
         job = job,
-        type = if (message.looksLikeSessionExpired()) "bykc_auto_select_session_expired"
-        else "bykc_auto_select_failed",
+        type =
+            if (message.looksLikeSessionExpired()) "bykc_auto_select_session_expired"
+            else "bykc_auto_select_failed",
         title = if (message.looksLikeSessionExpired()) "博雅抢课需要重新登录" else "博雅抢课失败",
         body = "${job.courseName} 自动选课未完成：$message",
     )

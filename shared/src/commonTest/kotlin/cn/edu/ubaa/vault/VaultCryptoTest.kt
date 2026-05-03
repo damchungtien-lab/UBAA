@@ -57,19 +57,18 @@ class VaultCryptoTest {
             baseRevision = null,
             iterations = 10_000,
         )
-    val result =
-        runCatching {
-          VaultCrypto.decrypt(
-              masterPassword = "wrong-password",
-              record =
-                  cn.edu.ubaa.model.dto.VaultRecordDto(
-                      revision = 1,
-                      updatedAt = "2026-05-03T10:01:00Z",
-                      cipherText = request.cipherText,
-                      params = request.params,
-                  ),
-          )
-        }
+    val result = runCatching {
+      VaultCrypto.decrypt(
+          masterPassword = "wrong-password",
+          record =
+              cn.edu.ubaa.model.dto.VaultRecordDto(
+                  revision = 1,
+                  updatedAt = "2026-05-03T10:01:00Z",
+                  cipherText = request.cipherText,
+                  params = request.params,
+              ),
+      )
+    }
     assertTrue(result.isFailure)
   }
 }

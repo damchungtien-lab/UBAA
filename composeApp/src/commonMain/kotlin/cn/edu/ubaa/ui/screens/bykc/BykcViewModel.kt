@@ -349,8 +349,7 @@ class BykcViewModel(
             _courseDetailState.value =
                 _courseDetailState.value.copy(
                     operationInProgress = false,
-                    operationMessage =
-                        if (job.message.isNullOrBlank()) "已开启自动抢课" else job.message,
+                    operationMessage = if (job.message.isNullOrBlank()) "已开启自动抢课" else job.message,
                 )
             upsertAutoSelectJob(job)
             onComplete(true, "已开启自动抢课")

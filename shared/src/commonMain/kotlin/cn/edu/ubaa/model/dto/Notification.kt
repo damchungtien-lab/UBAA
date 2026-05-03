@@ -28,4 +28,3 @@ data class WebPushSubscriptionDto(
 )
 
 @Serializable data class WebPushSubscriptionResponse(val endpointHash: String)
-

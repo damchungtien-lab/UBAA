@@ -117,7 +117,11 @@ private fun VaultHeader(
     ) {
       Icon(Icons.Default.Security, contentDescription = null)
       Column(modifier = Modifier.weight(1f)) {
-        Text(text = "密码保险库", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text(
+            text = "密码保险库",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+        )
         Text(
             text = if (hasVault) "服务端只保存加密后的保险库" else "创建一个只由主密码解锁的保险库",
             style = MaterialTheme.typography.bodySmall,
@@ -184,12 +188,41 @@ private fun VaultEntryEditor(
 
   Card(modifier = Modifier.fillMaxWidth()) {
     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-      Text(text = "新增记录", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-      OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("名称") }, modifier = Modifier.fillMaxWidth())
-      OutlinedTextField(value = username, onValueChange = { username = it }, label = { Text("用户名") }, modifier = Modifier.fillMaxWidth())
-      OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("密码") }, modifier = Modifier.fillMaxWidth())
-      OutlinedTextField(value = url, onValueChange = { url = it }, label = { Text("网址/系统") }, modifier = Modifier.fillMaxWidth())
-      OutlinedTextField(value = note, onValueChange = { note = it }, label = { Text("备注") }, modifier = Modifier.fillMaxWidth())
+      Text(
+          text = "新增记录",
+          style = MaterialTheme.typography.titleMedium,
+          fontWeight = FontWeight.Bold,
+      )
+      OutlinedTextField(
+          value = title,
+          onValueChange = { title = it },
+          label = { Text("名称") },
+          modifier = Modifier.fillMaxWidth(),
+      )
+      OutlinedTextField(
+          value = username,
+          onValueChange = { username = it },
+          label = { Text("用户名") },
+          modifier = Modifier.fillMaxWidth(),
+      )
+      OutlinedTextField(
+          value = password,
+          onValueChange = { password = it },
+          label = { Text("密码") },
+          modifier = Modifier.fillMaxWidth(),
+      )
+      OutlinedTextField(
+          value = url,
+          onValueChange = { url = it },
+          label = { Text("网址/系统") },
+          modifier = Modifier.fillMaxWidth(),
+      )
+      OutlinedTextField(
+          value = note,
+          onValueChange = { note = it },
+          label = { Text("备注") },
+          modifier = Modifier.fillMaxWidth(),
+      )
       Button(
           onClick = {
             onSave(null, title, username, password, url, note)
@@ -213,7 +246,11 @@ private fun VaultEntryCard(entry: VaultPlainEntryDto, onDelete: () -> Unit) {
     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
       Row(verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.weight(1f)) {
-          Text(text = entry.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+          Text(
+              text = entry.title,
+              style = MaterialTheme.typography.titleMedium,
+              fontWeight = FontWeight.Bold,
+          )
           Text(text = entry.username, style = MaterialTheme.typography.bodyMedium)
         }
         IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "删除") }

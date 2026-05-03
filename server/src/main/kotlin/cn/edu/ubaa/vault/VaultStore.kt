@@ -23,7 +23,8 @@ interface VaultStore {
 }
 
 class RedisVaultStore(
-    private val redis: RedisAsyncCommands<String, String> = GlobalRedisRuntime.instance.asyncCommands,
+    private val redis: RedisAsyncCommands<String, String> =
+        GlobalRedisRuntime.instance.asyncCommands,
     private val lockManager: RedisDistributedLockManager = GlobalDistributedLockManager.instance,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) : VaultStore {

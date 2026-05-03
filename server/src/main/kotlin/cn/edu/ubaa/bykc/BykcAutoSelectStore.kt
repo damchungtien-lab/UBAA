@@ -69,7 +69,8 @@ data class BykcAutoSelectJobRecord(
 }
 
 class RedisBykcAutoSelectStore(
-    private val redis: RedisAsyncCommands<String, String> = GlobalRedisRuntime.instance.asyncCommands,
+    private val redis: RedisAsyncCommands<String, String> =
+        GlobalRedisRuntime.instance.asyncCommands,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) : BykcAutoSelectStore {
   override suspend fun listJobs(username: String): BykcAutoSelectJobsResponse {
@@ -77,7 +78,9 @@ class RedisBykcAutoSelectStore(
     val jobs =
         ids.mapNotNull { readJob(it) }
             .filter { it.username == username }
-            .sortedWith(compareBy<BykcAutoSelectJobRecord> { it.dueAtEpochMillis }.thenBy { it.createdAt })
+            .sortedWith(
+                compareBy<BykcAutoSelectJobRecord> { it.dueAtEpochMillis }.thenBy { it.createdAt }
+            )
             .map { it.toDto() }
     return BykcAutoSelectJobsResponse(jobs)
   }

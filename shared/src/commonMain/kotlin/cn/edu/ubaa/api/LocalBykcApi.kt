@@ -1,10 +1,10 @@
 package cn.edu.ubaa.api
 
-import cn.edu.ubaa.model.dto.BykcCategoryStatisticsDto
-import cn.edu.ubaa.model.dto.BykcChosenCourseDto
 import cn.edu.ubaa.model.dto.BykcAutoSelectJobDto
 import cn.edu.ubaa.model.dto.BykcAutoSelectJobsResponse
 import cn.edu.ubaa.model.dto.BykcAutoSelectRequest
+import cn.edu.ubaa.model.dto.BykcCategoryStatisticsDto
+import cn.edu.ubaa.model.dto.BykcChosenCourseDto
 import cn.edu.ubaa.model.dto.BykcCourseCategory
 import cn.edu.ubaa.model.dto.BykcCourseDetailDto
 import cn.edu.ubaa.model.dto.BykcCourseDto

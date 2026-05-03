@@ -32,8 +32,7 @@ class NotificationViewModel(
     loadedOnce = true
     viewModelScope.launch {
       _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-      api
-          .getNotifications()
+      api.getNotifications()
           .onSuccess { response ->
             _uiState.value =
                 NotificationUiState(

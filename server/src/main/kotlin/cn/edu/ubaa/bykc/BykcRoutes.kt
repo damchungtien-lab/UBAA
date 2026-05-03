@@ -339,10 +339,14 @@ private fun resolveAutoSelectInstant(
     courseSelectStartDate: LocalDateTime?,
 ): Instant? {
   requested?.trim()?.takeIf(String::isNotEmpty)?.let { value ->
-    runCatching { Instant.parse(value) }.getOrNull()?.let {
-      return it
-    }
-    return runCatching { LocalDateTime.parse(value.replace(" ", "T")).toInstant(bykcAutoSelectZone) }
+    runCatching { Instant.parse(value) }
+        .getOrNull()
+        ?.let {
+          return it
+        }
+    return runCatching {
+          LocalDateTime.parse(value.replace(" ", "T")).toInstant(bykcAutoSelectZone)
+        }
         .getOrNull()
   }
   return courseSelectStartDate?.toInstant(bykcAutoSelectZone) ?: Clock.System.now()

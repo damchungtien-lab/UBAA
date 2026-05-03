@@ -27,4 +27,3 @@ data class BykcAutoSelectJobDto(
 @Serializable data class BykcAutoSelectJobsResponse(val jobs: List<BykcAutoSelectJobDto>)
 
 @Serializable data class BykcAutoSelectRequest(val scheduledAt: String? = null)
-

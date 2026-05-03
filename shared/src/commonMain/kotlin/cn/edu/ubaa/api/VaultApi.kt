@@ -26,14 +26,14 @@ class VaultApi(private val apiClient: ApiClient = ApiClientProvider.shared) {
     }
   }
 
-  suspend fun saveVault(request: VaultSaveRequest): Result<VaultSaveResponse> =
-      safeApiCall {
-        apiClient.getClient().put("api/v1/vault") {
-          contentType(ContentType.Application.Json)
-          setBody(request)
-        }
-      }
+  suspend fun saveVault(request: VaultSaveRequest): Result<VaultSaveResponse> = safeApiCall {
+    apiClient.getClient().put("api/v1/vault") {
+      contentType(ContentType.Application.Json)
+      setBody(request)
+    }
+  }
 
-  suspend fun deleteVault(): Result<Map<String, String>> =
-      safeApiCall { apiClient.getClient().delete("api/v1/vault") }
+  suspend fun deleteVault(): Result<Map<String, String>> = safeApiCall {
+    apiClient.getClient().delete("api/v1/vault")
+  }
 }

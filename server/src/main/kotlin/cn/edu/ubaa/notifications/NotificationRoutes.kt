@@ -19,13 +19,16 @@ fun Route.notificationRouting(
   val store by lazy(storeProvider)
   route("/api/v1/notifications") {
     get {
-      val username = call.jwtUsername ?: return@get call.respondError(HttpStatusCode.Unauthorized, "invalid_token")
+      val username =
+          call.jwtUsername
+              ?: return@get call.respondError(HttpStatusCode.Unauthorized, "invalid_token")
       call.respond(HttpStatusCode.OK, store.list(username))
     }
 
     post("/{id}/read") {
       val username =
-          call.jwtUsername ?: return@post call.respondError(HttpStatusCode.Unauthorized, "invalid_token")
+          call.jwtUsername
+              ?: return@post call.respondError(HttpStatusCode.Unauthorized, "invalid_token")
       val id =
           call.parameters["id"]?.takeIf(String::isNotBlank)
               ?: return@post call.respondError(HttpStatusCode.BadRequest, "invalid_request")
@@ -34,7 +37,8 @@ fun Route.notificationRouting(
 
     post("/push-subscriptions") {
       val username =
-          call.jwtUsername ?: return@post call.respondError(HttpStatusCode.Unauthorized, "invalid_token")
+          call.jwtUsername
+              ?: return@post call.respondError(HttpStatusCode.Unauthorized, "invalid_token")
       val request =
           runCatching { call.receive<WebPushSubscriptionDto>() }
               .getOrElse {

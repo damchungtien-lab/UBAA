@@ -11,21 +11,22 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 class NotificationApi(private val apiClient: ApiClient = ApiClientProvider.shared) {
-  suspend fun getNotifications(): Result<AppNotificationsResponse> =
-      safeApiCall { apiClient.getClient().get("api/v1/notifications") }
+  suspend fun getNotifications(): Result<AppNotificationsResponse> = safeApiCall {
+    apiClient.getClient().get("api/v1/notifications")
+  }
 
-  suspend fun markRead(id: String): Result<AppNotificationsResponse> =
-      safeApiCall { apiClient.getClient().post("api/v1/notifications/$id/read") }
+  suspend fun markRead(id: String): Result<AppNotificationsResponse> = safeApiCall {
+    apiClient.getClient().post("api/v1/notifications/$id/read")
+  }
 
   suspend fun savePushSubscription(
       subscription: WebPushSubscriptionDto
-  ): Result<WebPushSubscriptionResponse> =
-      safeApiCall {
-        apiClient.getClient().post("api/v1/notifications/push-subscriptions") {
-          contentType(ContentType.Application.Json)
-          setBody(subscription)
-        }
-      }
+  ): Result<WebPushSubscriptionResponse> = safeApiCall {
+    apiClient.getClient().post("api/v1/notifications/push-subscriptions") {
+      contentType(ContentType.Application.Json)
+      setBody(subscription)
+    }
+  }
 
   suspend fun deletePushSubscription(endpointHash: String): Result<WebPushSubscriptionResponse> =
       safeApiCall {

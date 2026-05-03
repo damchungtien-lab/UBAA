@@ -225,9 +225,7 @@ internal class RelayBykcApiBackend(private val apiClient: ApiClient = ApiClientP
   }
 
   override suspend fun cancelAutoSelect(courseId: Long): Result<BykcAutoSelectJobDto> {
-    return safeApiCall {
-      apiClient.getClient().delete("api/v1/bykc/courses/$courseId/auto-select")
-    }
+    return safeApiCall { apiClient.getClient().delete("api/v1/bykc/courses/$courseId/auto-select") }
   }
 
   override suspend fun signCourse(

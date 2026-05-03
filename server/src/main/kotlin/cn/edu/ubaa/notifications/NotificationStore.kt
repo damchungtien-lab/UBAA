@@ -46,7 +46,8 @@ data class StoredPushSubscription(
 )
 
 class RedisNotificationStore(
-    private val redis: RedisAsyncCommands<String, String> = GlobalRedisRuntime.instance.asyncCommands,
+    private val redis: RedisAsyncCommands<String, String> =
+        GlobalRedisRuntime.instance.asyncCommands,
     private val json: Json = Json { ignoreUnknownKeys = true },
     private val maxNotifications: Int = 100,
 ) : NotificationStore {

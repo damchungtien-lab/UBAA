@@ -13,11 +13,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import cn.edu.ubaa.model.dto.BykcAutoSelectJobDto
+import cn.edu.ubaa.model.dto.BykcAutoSelectJobStatus
 import cn.edu.ubaa.model.dto.BykcCourseDetailDto
 import cn.edu.ubaa.model.dto.BykcCourseDto
 import cn.edu.ubaa.model.dto.BykcCourseStatus
-import cn.edu.ubaa.model.dto.BykcAutoSelectJobDto
-import cn.edu.ubaa.model.dto.BykcAutoSelectJobStatus
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.delay
@@ -490,9 +490,7 @@ private fun AutoSelectCard(
       Switch(
           checked = active,
           enabled = !isLoading,
-          onCheckedChange = { checked ->
-            if (checked) onEnable() else onCancel()
-          },
+          onCheckedChange = { checked -> if (checked) onEnable() else onCancel() },
       )
     }
     if (isLoading) {

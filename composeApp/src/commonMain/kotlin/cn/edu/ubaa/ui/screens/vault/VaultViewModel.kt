@@ -33,8 +33,7 @@ class VaultViewModel(
   fun load() {
     viewModelScope.launch {
       _uiState.value = _uiState.value.copy(isLoading = true, error = null, message = null)
-      api
-          .getVault()
+      api.getVault()
           .onSuccess { record ->
             _uiState.value =
                 VaultUiState(
@@ -67,8 +66,7 @@ class VaultViewModel(
                 )
           }
           .onFailure {
-            _uiState.value =
-                _uiState.value.copy(isLoading = false, error = "主密码不正确或保险库已损坏")
+            _uiState.value = _uiState.value.copy(isLoading = false, error = "主密码不正确或保险库已损坏")
           }
     }
   }
@@ -126,8 +124,7 @@ class VaultViewModel(
           }
           .fold(
               onSuccess = { request ->
-                api
-                    .saveVault(request)
+                api.saveVault(request)
                     .onSuccess { response ->
                       _uiState.value =
                           _uiState.value.copy(

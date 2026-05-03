@@ -9,7 +9,8 @@ interface PushNotificationDispatcher {
 class StoredSubscriptionPushNotificationDispatcher(
     private val store: NotificationStore = GlobalNotificationStore.instance,
 ) : PushNotificationDispatcher {
-  private val log = LoggerFactory.getLogger(StoredSubscriptionPushNotificationDispatcher::class.java)
+  private val log =
+      LoggerFactory.getLogger(StoredSubscriptionPushNotificationDispatcher::class.java)
 
   override suspend fun notifyUser(
       username: String,
@@ -29,5 +30,7 @@ class StoredSubscriptionPushNotificationDispatcher(
 }
 
 object GlobalPushNotificationDispatcher {
-  val instance: PushNotificationDispatcher by lazy { StoredSubscriptionPushNotificationDispatcher() }
+  val instance: PushNotificationDispatcher by lazy {
+    StoredSubscriptionPushNotificationDispatcher()
+  }
 }

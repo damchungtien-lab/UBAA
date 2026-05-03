@@ -718,8 +718,7 @@ fun MainAppScreen(
                   error = bykcDetailState.error,
                   operationInProgress = bykcDetailState.operationInProgress,
                   operationMessage = bykcDetailState.operationMessage,
-                  autoSelectJob =
-                      selectedBykcCourseId?.let { bykcViewModel.autoSelectJobFor(it) },
+                  autoSelectJob = selectedBykcCourseId?.let { bykcViewModel.autoSelectJobFor(it) },
                   autoSelectLoading = bykcAutoSelectState.isLoading,
                   onSelectClick = {
                     selectedBykcCourseId?.let { bykcViewModel.selectCourse(it) { _, _ -> } }
@@ -728,14 +727,10 @@ fun MainAppScreen(
                     selectedBykcCourseId?.let { bykcViewModel.deselectCourse(it) { _, _ -> } }
                   },
                   onEnableAutoSelectClick = {
-                    selectedBykcCourseId?.let {
-                      bykcViewModel.enableAutoSelect(it) { _, _ -> }
-                    }
+                    selectedBykcCourseId?.let { bykcViewModel.enableAutoSelect(it) { _, _ -> } }
                   },
                   onCancelAutoSelectClick = {
-                    selectedBykcCourseId?.let {
-                      bykcViewModel.cancelAutoSelect(it) { _, _ -> }
-                    }
+                    selectedBykcCourseId?.let { bykcViewModel.cancelAutoSelect(it) { _, _ -> } }
                   },
                   onSignInClick = {
                     selectedBykcCourseId?.let {

@@ -64,8 +64,7 @@ object VaultCrypto {
     val nonce = Base64.decode(record.params.nonce)
     val cipherText = Base64.decode(record.cipherText)
     val keyBytes = deriveKey(masterPassword, salt, record.params.iterations)
-    val plaintext =
-        aesKey(keyBytes).cipher().decryptWithIv(iv = nonce, ciphertext = cipherText)
+    val plaintext = aesKey(keyBytes).cipher().decryptWithIv(iv = nonce, ciphertext = cipherText)
     return json.decodeFromString(plaintext.decodeToString())
   }
 
@@ -74,8 +73,7 @@ object VaultCrypto {
       salt: ByteArray,
       iterations: Int,
   ): ByteArray =
-      CryptographyProvider.Default
-          .get(PBKDF2)
+      CryptographyProvider.Default.get(PBKDF2)
           .secretDerivation(
               digest = SHA256,
               iterations = iterations,
@@ -85,8 +83,7 @@ object VaultCrypto {
           .deriveSecretToByteArray(masterPassword.encodeToByteArray())
 
   private suspend fun aesKey(keyBytes: ByteArray) =
-      CryptographyProvider.Default
-          .get(AES.GCM)
+      CryptographyProvider.Default.get(AES.GCM)
           .keyDecoder()
           .decodeFromByteArray(AES.Key.Format.RAW, keyBytes)
 }
