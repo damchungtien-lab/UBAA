@@ -42,9 +42,7 @@ object VaultCrypto {
     return result
   }
 
-  @OptIn(ExperimentalEncodingApi::class)
   private fun encodeBase64(data: ByteArray): String = Base64.encode(data)
 
-  @OptIn(ExperimentalEncodingApi::class)
   private fun decodeBase64(data: String): ByteArray = Base64.decode(data)
 }
