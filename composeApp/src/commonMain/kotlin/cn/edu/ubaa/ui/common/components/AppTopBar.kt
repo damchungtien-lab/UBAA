@@ -17,30 +17,30 @@ fun AppTopBar(
     onNavigationIconClick: () -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
-    CenterAlignedTopAppBar(
-        expandedHeight = 56.dp,
-        title = {
-            Text(
-                title,
-                fontWeight = FontWeight.SemiBold,
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onNavigationIconClick) {
-                if (canNavigateBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
-                } else {
-                    Icon(Icons.Default.Menu, contentDescription = "菜单")
-                }
-            }
-        },
-        actions = actions,
-        colors =
-            TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                titleContentColor = MaterialTheme.colorScheme.onSurface,
-                navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                actionIconContentColor = MaterialTheme.colorScheme.primary,
-            ),
-    )
+  CenterAlignedTopAppBar(
+      expandedHeight = 56.dp,
+      title = {
+        Text(
+            title,
+            fontWeight = FontWeight.SemiBold,
+        )
+      },
+      navigationIcon = {
+        IconButton(onClick = onNavigationIconClick) {
+          if (canNavigateBack) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+          } else {
+            Icon(Icons.Default.Menu, contentDescription = "菜单")
+          }
+        }
+      },
+      actions = actions,
+      colors =
+          TopAppBarDefaults.centerAlignedTopAppBarColors(
+              containerColor = MaterialTheme.colorScheme.surface,
+              titleContentColor = MaterialTheme.colorScheme.onSurface,
+              navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+              actionIconContentColor = MaterialTheme.colorScheme.primary,
+          ),
+  )
 }

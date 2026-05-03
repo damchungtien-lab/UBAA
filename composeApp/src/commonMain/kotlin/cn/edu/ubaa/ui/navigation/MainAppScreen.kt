@@ -51,14 +51,14 @@ import cn.edu.ubaa.ui.screens.spoc.SpocAssignmentDetailScreen
 import cn.edu.ubaa.ui.screens.spoc.SpocAssignmentsScreen
 import cn.edu.ubaa.ui.screens.spoc.SpocSortField
 import cn.edu.ubaa.ui.screens.spoc.SpocViewModel
-import cn.edu.ubaa.ui.screens.ygdk.YgdkClockinFormScreen
-import cn.edu.ubaa.ui.screens.ygdk.YgdkHomeScreen
-import cn.edu.ubaa.ui.screens.ygdk.YgdkUiState
-import cn.edu.ubaa.ui.screens.ygdk.YgdkViewModel
 import cn.edu.ubaa.ui.screens.vault.VaultEntryScreen
 import cn.edu.ubaa.ui.screens.vault.VaultHomeScreen
 import cn.edu.ubaa.ui.screens.vault.VaultUnlockScreen
 import cn.edu.ubaa.ui.screens.vault.VaultViewModel
+import cn.edu.ubaa.ui.screens.ygdk.YgdkClockinFormScreen
+import cn.edu.ubaa.ui.screens.ygdk.YgdkHomeScreen
+import cn.edu.ubaa.ui.screens.ygdk.YgdkUiState
+import cn.edu.ubaa.ui.screens.ygdk.YgdkViewModel
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.delay
@@ -204,7 +204,9 @@ fun MainAppScreen(
       }
   val ygdkUiState = ygdkViewModel?.uiState?.collectAsState()?.value ?: YgdkUiState()
   val autoBookingViewModel: AutoBookingViewModel =
-      viewModel(key = "auto-booking-${userData.schoolid}") { AutoBookingViewModel(userId = userData.schoolid) }
+      viewModel(key = "auto-booking-${userData.schoolid}") {
+        AutoBookingViewModel(userId = userData.schoolid)
+      }
   val autoBookingUiState by autoBookingViewModel.uiState.collectAsState()
   val vaultViewModel: VaultViewModel =
       viewModel(key = "vault-${userData.schoolid}") { VaultViewModel() }
@@ -671,9 +673,7 @@ fun MainAppScreen(
           AppScreen.VAULT_UNLOCK ->
               VaultUnlockScreen(
                   viewModel = vaultViewModel,
-                  onVaultReady = {
-                    if (vaultUiState.isUnlocked) navigateTo(AppScreen.VAULT_HOME)
-                  },
+                  onVaultReady = { if (vaultUiState.isUnlocked) navigateTo(AppScreen.VAULT_HOME) },
               )
           AppScreen.VAULT_HOME ->
               VaultHomeScreen(
@@ -687,9 +687,7 @@ fun MainAppScreen(
               )
           AppScreen.VAULT_ENTRY ->
               VaultEntryScreen(
-                  entry = vaultEditEntryId?.let { id ->
-                    vaultUiState.entries.find { it.id == id }
-                  },
+                  entry = vaultEditEntryId?.let { id -> vaultUiState.entries.find { it.id == id } },
                   viewModel = vaultViewModel,
                   onSave = {
                     vaultEditEntryId = null

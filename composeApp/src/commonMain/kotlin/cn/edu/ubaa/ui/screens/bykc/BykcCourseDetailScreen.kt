@@ -384,7 +384,8 @@ fun BykcCourseDetailScreen(
                   }
                 } else {
                   val isPreview =
-                      course.courseSelectStartDate != null && localNow < course.courseSelectStartDate
+                      course.courseSelectStartDate != null &&
+                          localNow < course.courseSelectStartDate
                   if (isPreview && onAutoBookClick != null) {
                     if (hasAutoBookTask) {
                       OutlinedButton(

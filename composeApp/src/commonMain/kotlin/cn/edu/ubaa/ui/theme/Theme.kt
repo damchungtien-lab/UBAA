@@ -88,9 +88,9 @@ private val DarkColorScheme =
 
 @Composable
 fun UBAATheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+  val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
-    MaterialTheme(colorScheme = colorScheme, typography = getAppTypography()) {
-        Surface(modifier = Modifier.fillMaxSize(), color = colorScheme.background) { content() }
-    }
+  MaterialTheme(colorScheme = colorScheme, typography = getAppTypography()) {
+    Surface(modifier = Modifier.fillMaxSize(), color = colorScheme.background) { content() }
+  }
 }
