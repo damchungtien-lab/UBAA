@@ -48,6 +48,12 @@ data class BykcStatisticsUiState(
     val error: String? = null,
 )
 
+data class BykcAutoSelectUiState(
+    val isLoading: Boolean = false,
+    val jobs: List<BykcAutoSelectJobDto> = emptyList(),
+    val error: String? = null,
+)
+
 /** 管理博雅课程功能模块状态的 ViewModel。 负责课程浏览、选课退选、签到以及统计数据的拉取。 */
 class BykcViewModel(
     private val bykcApi: BykcApi = BykcApi(),
@@ -56,6 +62,7 @@ class BykcViewModel(
   private var chosenLoadedOnce = false
   private var statisticsLoadedOnce = false
   private var coursesLoadedOnce = false
+  private var autoSelectLoadedOnce = false
   private var loadedCoursesIncludeExpired: Boolean? = null
 
   private val _coursesState = MutableStateFlow(BykcCoursesUiState())
@@ -73,6 +80,9 @@ class BykcViewModel(
   private val _statisticsState = MutableStateFlow(BykcStatisticsUiState())
   /** 统计数据状态流。 */
   val statisticsState: StateFlow<BykcStatisticsUiState> = _statisticsState.asStateFlow()
+
+  private val _autoSelectState = MutableStateFlow(BykcAutoSelectUiState())
+  val autoSelectState: StateFlow<BykcAutoSelectUiState> = _autoSelectState.asStateFlow()
 
   fun ensureProfileLoaded(forceRefresh: Boolean = false) {
     if (!forceRefresh && profileLoadedOnce) return
@@ -98,6 +108,21 @@ class BykcViewModel(
     loadStatistics()
   }
 
+  fun ensureAutoSelectJobsLoaded(forceRefresh: Boolean = false) {
+    if (!forceRefresh && autoSelectLoadedOnce) return
+    loadAutoSelectJobs()
+  }
+
+  fun autoSelectJobFor(courseId: Long): BykcAutoSelectJobDto? =
+      _autoSelectState.value.jobs.firstOrNull {
+        it.courseId == courseId &&
+            it.status in
+                setOf(
+                    BykcAutoSelectJobStatus.PENDING,
+                    BykcAutoSelectJobStatus.RUNNING,
+                )
+      }
+
   /** 加载用户的博雅修读次数统计。 */
   fun loadStatistics() {
     statisticsLoadedOnce = true
@@ -111,6 +136,26 @@ class BykcViewModel(
           .onFailure {
             _statisticsState.value =
                 _statisticsState.value.copy(isLoading = false, error = it.message ?: "加载统计信息失败")
+          }
+    }
+  }
+
+  fun loadAutoSelectJobs() {
+    autoSelectLoadedOnce = true
+    viewModelScope.launch {
+      _autoSelectState.value = _autoSelectState.value.copy(isLoading = true, error = null)
+      bykcApi
+          .getAutoSelectJobs()
+          .onSuccess { response ->
+            _autoSelectState.value =
+                _autoSelectState.value.copy(isLoading = false, jobs = response.jobs, error = null)
+          }
+          .onFailure { error ->
+            _autoSelectState.value =
+                _autoSelectState.value.copy(
+                    isLoading = false,
+                    error = error.message ?: "自动抢课任务加载失败",
+                )
           }
     }
   }
@@ -295,6 +340,57 @@ class BykcViewModel(
     }
   }
 
+  fun enableAutoSelect(courseId: Long, onComplete: (Boolean, String) -> Unit) {
+    viewModelScope.launch {
+      _courseDetailState.value = _courseDetailState.value.copy(operationInProgress = true)
+      bykcApi
+          .enableAutoSelect(courseId)
+          .onSuccess { job ->
+            _courseDetailState.value =
+                _courseDetailState.value.copy(
+                    operationInProgress = false,
+                    operationMessage =
+                        if (job.message.isNullOrBlank()) "已开启自动抢课" else job.message,
+                )
+            upsertAutoSelectJob(job)
+            onComplete(true, "已开启自动抢课")
+          }
+          .onFailure { error ->
+            _courseDetailState.value =
+                _courseDetailState.value.copy(
+                    operationInProgress = false,
+                    operationMessage = error.message,
+                )
+            onComplete(false, error.message ?: "开启自动抢课失败")
+          }
+    }
+  }
+
+  fun cancelAutoSelect(courseId: Long, onComplete: (Boolean, String) -> Unit) {
+    viewModelScope.launch {
+      _courseDetailState.value = _courseDetailState.value.copy(operationInProgress = true)
+      bykcApi
+          .cancelAutoSelect(courseId)
+          .onSuccess { job ->
+            _courseDetailState.value =
+                _courseDetailState.value.copy(
+                    operationInProgress = false,
+                    operationMessage = "已取消自动抢课",
+                )
+            upsertAutoSelectJob(job)
+            onComplete(true, "已取消自动抢课")
+          }
+          .onFailure { error ->
+            _courseDetailState.value =
+                _courseDetailState.value.copy(
+                    operationInProgress = false,
+                    operationMessage = error.message,
+                )
+            onComplete(false, error.message ?: "取消自动抢课失败")
+          }
+    }
+  }
+
   /** 签到/签退操作。 */
   fun signCourse(
       courseId: Long,
@@ -331,5 +427,11 @@ class BykcViewModel(
   /** 清除当前的操作提示消息。 */
   fun clearOperationMessage() {
     _courseDetailState.value = _courseDetailState.value.copy(operationMessage = null)
+  }
+
+  private fun upsertAutoSelectJob(job: BykcAutoSelectJobDto) {
+    val current = _autoSelectState.value.jobs.filterNot { it.id == job.id }
+    _autoSelectState.value =
+        _autoSelectState.value.copy(jobs = (current + job).sortedBy { it.scheduledAt })
   }
 }

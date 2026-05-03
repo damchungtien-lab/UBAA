@@ -35,6 +35,9 @@ internal fun userFacingMessage(code: String, fallback: String? = null): String {
     "signin_load_failed" -> "签到信息加载失败，请稍后重试"
     "bykc_error" -> "博雅课程服务暂时不可用，请稍后重试"
     "bykc_timeout" -> "博雅课程服务响应超时，请稍后重试"
+    "auto_select_job_not_found" -> "未找到自动抢课任务"
+    "vault_not_initialized" -> "密码保险库尚未初始化"
+    "vault_revision_conflict" -> "保险库已有更新，请刷新后再保存"
     "cgyy_error" -> "研讨室服务暂时不可用，请稍后重试"
     "cgyy_timeout" -> "研讨室服务响应超时，请稍后重试"
     "reservation_invalid",

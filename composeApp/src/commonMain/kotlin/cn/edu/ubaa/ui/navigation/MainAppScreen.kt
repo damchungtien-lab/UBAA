@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -42,6 +43,8 @@ import cn.edu.ubaa.ui.screens.exam.ExamScreen
 import cn.edu.ubaa.ui.screens.exam.ExamUiState
 import cn.edu.ubaa.ui.screens.exam.ExamViewModel
 import cn.edu.ubaa.ui.screens.menu.*
+import cn.edu.ubaa.ui.screens.notifications.NotificationScreen
+import cn.edu.ubaa.ui.screens.notifications.NotificationViewModel
 import cn.edu.ubaa.ui.screens.schedule.CourseDetailScreen
 import cn.edu.ubaa.ui.screens.schedule.ScheduleScreen
 import cn.edu.ubaa.ui.screens.schedule.ScheduleViewModel
@@ -51,6 +54,8 @@ import cn.edu.ubaa.ui.screens.spoc.SpocAssignmentDetailScreen
 import cn.edu.ubaa.ui.screens.spoc.SpocAssignmentsScreen
 import cn.edu.ubaa.ui.screens.spoc.SpocSortField
 import cn.edu.ubaa.ui.screens.spoc.SpocViewModel
+import cn.edu.ubaa.ui.screens.vault.VaultScreen
+import cn.edu.ubaa.ui.screens.vault.VaultViewModel
 import cn.edu.ubaa.ui.screens.ygdk.YgdkClockinFormScreen
 import cn.edu.ubaa.ui.screens.ygdk.YgdkHomeScreen
 import cn.edu.ubaa.ui.screens.ygdk.YgdkUiState
@@ -69,6 +74,7 @@ enum class AppScreen {
   MY,
   SETTINGS,
   ABOUT,
+  NOTIFICATIONS,
   SCHEDULE,
   EXAM,
   COURSE_DETAIL,
@@ -78,6 +84,7 @@ enum class AppScreen {
   BYKC_CHOSEN,
   BYKC_STATISTICS,
   SIGNIN,
+  VAULT,
   CGYY_HOME,
   CGYY_RESERVE_PICKER,
   CGYY_RESERVE_FORM,
@@ -188,6 +195,13 @@ fun MainAppScreen(
   val bykcCoursesState by bykcViewModel.coursesState.collectAsState()
   val bykcDetailState by bykcViewModel.courseDetailState.collectAsState()
   val bykcChosenState by bykcViewModel.chosenCoursesState.collectAsState()
+  val bykcAutoSelectState by bykcViewModel.autoSelectState.collectAsState()
+  val notificationViewModel: NotificationViewModel =
+      viewModel(key = "notifications-${userData.schoolid}") { NotificationViewModel() }
+  val notificationUiState by notificationViewModel.uiState.collectAsState()
+  val vaultViewModel: VaultViewModel =
+      viewModel(key = "vault-${userData.schoolid}") { VaultViewModel() }
+  val vaultUiState by vaultViewModel.uiState.collectAsState()
   val ygdkViewModel: YgdkViewModel? =
       if (currentScreen in ygdkScreens) {
         viewModel(key = "ygdk-${userData.schoolid}") { YgdkViewModel() }
@@ -315,6 +329,7 @@ fun MainAppScreen(
               AppScreen.BYKC_CHOSEN,
               AppScreen.BYKC_STATISTICS,
               AppScreen.SIGNIN,
+              AppScreen.VAULT,
               AppScreen.CGYY_HOME,
               AppScreen.CGYY_RESERVE_PICKER,
               AppScreen.CGYY_RESERVE_FORM,
@@ -350,6 +365,7 @@ fun MainAppScreen(
             AppScreen.BYKC_CHOSEN,
             AppScreen.BYKC_STATISTICS,
             AppScreen.SIGNIN,
+            AppScreen.VAULT,
             AppScreen.CGYY_HOME,
             AppScreen.CGYY_RESERVE_PICKER,
             AppScreen.CGYY_RESERVE_FORM,
@@ -405,6 +421,11 @@ fun MainAppScreen(
     if (currentScreen == AppScreen.MY) {
       onEnsureUserInfo()
     }
+    if (currentScreen == AppScreen.NOTIFICATIONS) {
+      notificationViewModel.ensureLoaded(forceRefresh = true)
+    } else {
+      notificationViewModel.ensureLoaded()
+    }
   }
 
   // Don't clear a manual refresh until we've observed real loading at least once.
@@ -435,10 +456,13 @@ fun MainAppScreen(
       AppScreen.BYKC_COURSES -> {
         bykcViewModel.ensureProfileLoaded()
         bykcViewModel.ensureCoursesLoaded(includeExpired = bykcCourseFilters.requiresAllCourses())
+        bykcViewModel.ensureAutoSelectJobsLoaded()
       }
+      AppScreen.BYKC_DETAIL -> bykcViewModel.ensureAutoSelectJobsLoaded()
       AppScreen.BYKC_CHOSEN -> bykcViewModel.ensureChosenCoursesLoaded()
       AppScreen.BYKC_STATISTICS -> bykcViewModel.ensureStatisticsLoaded()
       AppScreen.SIGNIN -> signinViewModel.ensureTodayLoaded()
+      AppScreen.VAULT -> vaultViewModel.load()
       AppScreen.CGYY_HOME,
       AppScreen.CGYY_RESERVE_PICKER,
       AppScreen.CGYY_RESERVE_FORM -> {
@@ -478,6 +502,7 @@ fun MainAppScreen(
         AppScreen.MY -> "我的"
         AppScreen.SETTINGS -> "设置"
         AppScreen.ABOUT -> "关于"
+        AppScreen.NOTIFICATIONS -> "通知中心"
         AppScreen.SCHEDULE -> "课程表"
         AppScreen.EXAM -> "考试查询"
         AppScreen.COURSE_DETAIL -> "课程详情"
@@ -487,6 +512,7 @@ fun MainAppScreen(
         AppScreen.BYKC_CHOSEN -> "我的课程"
         AppScreen.BYKC_STATISTICS -> "课程统计"
         AppScreen.SIGNIN -> "课程签到"
+        AppScreen.VAULT -> "密码保险库"
         AppScreen.CGYY_HOME -> "研讨室预约"
         AppScreen.CGYY_RESERVE_PICKER -> "预约研讨室"
         AppScreen.CGYY_RESERVE_FORM -> "填写预约信息"
@@ -517,6 +543,21 @@ fun MainAppScreen(
               if (isRootScreen) showSidebar = !showSidebar else navigateBack()
             },
             actions = {
+              if (currentScreen != AppScreen.NOTIFICATIONS) {
+                IconButton(onClick = { navigateTo(AppScreen.NOTIFICATIONS) }) {
+                  BadgedBox(
+                      badge = {
+                        if (notificationUiState.unreadCount > 0) {
+                          Badge {
+                            Text(notificationUiState.unreadCount.coerceAtMost(99).toString())
+                          }
+                        }
+                      }
+                  ) {
+                    Icon(Icons.Default.Notifications, contentDescription = "通知")
+                  }
+                }
+              }
               // 特殊页面的顶部栏动作按钮
               if (currentScreen == AppScreen.EXAM) {
                 Box {
@@ -581,6 +622,7 @@ fun MainAppScreen(
                   onCgyyClick = { navigateTo(AppScreen.CGYY_HOME) },
                   onEvaluationClick = { navigateTo(AppScreen.EVALUATION) },
                   onYgdkClick = { navigateTo(AppScreen.YGDK_HOME) },
+                  onVaultClick = { navigateTo(AppScreen.VAULT) },
               )
           AppScreen.MY -> MyScreen(userInfo = userInfo)
           AppScreen.SETTINGS ->
@@ -590,6 +632,14 @@ fun MainAppScreen(
                   onModeSelected = onConnectionModeSelected,
               )
           AppScreen.ABOUT -> AboutScreen()
+          AppScreen.NOTIFICATIONS ->
+              NotificationScreen(
+                  uiState = notificationUiState,
+                  onRefresh = { notificationViewModel.refresh() },
+                  onNotificationClick = { notification ->
+                    notificationViewModel.markRead(notification.id)
+                  },
+              )
           AppScreen.SCHEDULE ->
               ScheduleScreen(
                   terms = scheduleUiState.terms,
@@ -620,6 +670,19 @@ fun MainAppScreen(
               )
           AppScreen.BYKC_STATISTICS -> BykcStatisticsScreen(viewModel = bykcViewModel)
           AppScreen.SIGNIN -> SigninScreen(viewModel = signinViewModel)
+          AppScreen.VAULT ->
+              VaultScreen(
+                  uiState = vaultUiState,
+                  onUnlock = { vaultViewModel.unlock(it) },
+                  onInitialize = { vaultViewModel.initialize(it) },
+                  onUpsertEntry = { id, title, username, password, url, note ->
+                    vaultViewModel.upsertEntry(id, title, username, password, url, note)
+                  },
+                  onDeleteEntry = { vaultViewModel.deleteEntry(it) },
+                  onSave = { vaultViewModel.save() },
+                  onLock = { vaultViewModel.lock() },
+                  onReset = { vaultViewModel.resetVault() },
+              )
           AppScreen.BYKC_COURSES ->
               BykcCoursesScreen(
                   courses = bykcCoursesState.courses,
@@ -655,11 +718,24 @@ fun MainAppScreen(
                   error = bykcDetailState.error,
                   operationInProgress = bykcDetailState.operationInProgress,
                   operationMessage = bykcDetailState.operationMessage,
+                  autoSelectJob =
+                      selectedBykcCourseId?.let { bykcViewModel.autoSelectJobFor(it) },
+                  autoSelectLoading = bykcAutoSelectState.isLoading,
                   onSelectClick = {
                     selectedBykcCourseId?.let { bykcViewModel.selectCourse(it) { _, _ -> } }
                   },
                   onDeselectClick = {
                     selectedBykcCourseId?.let { bykcViewModel.deselectCourse(it) { _, _ -> } }
+                  },
+                  onEnableAutoSelectClick = {
+                    selectedBykcCourseId?.let {
+                      bykcViewModel.enableAutoSelect(it) { _, _ -> }
+                    }
+                  },
+                  onCancelAutoSelectClick = {
+                    selectedBykcCourseId?.let {
+                      bykcViewModel.cancelAutoSelect(it) { _, _ -> }
+                    }
                   },
                   onSignInClick = {
                     selectedBykcCourseId?.let {
@@ -775,11 +851,13 @@ fun MainAppScreen(
                   AppScreen.MY,
                   AppScreen.SETTINGS,
                   AppScreen.ABOUT,
+                  AppScreen.NOTIFICATIONS,
                   AppScreen.BYKC_HOME,
                   AppScreen.BYKC_COURSES,
                   AppScreen.BYKC_DETAIL,
                   AppScreen.BYKC_CHOSEN,
                   AppScreen.BYKC_STATISTICS,
+                  AppScreen.VAULT,
                   AppScreen.CLASSROOM_QUERY,
                   AppScreen.CGYY_HOME,
                   AppScreen.CGYY_RESERVE_PICKER,

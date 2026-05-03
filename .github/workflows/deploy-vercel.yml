@@ -1,0 +1,46 @@
+name: Deploy Web to Vercel
+
+on:
+  push:
+    branches:
+      - main
+      - feature/**
+  workflow_dispatch:
+
+jobs:
+  deploy-web:
+    name: Build Wasm and Deploy
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Web Wasm
+        env:
+          API_ENDPOINT: ${{ secrets.API_ENDPOINT }}
+        run: ./gradlew :composeApp:wasmJsBrowserDistribution
+
+      - name: Deploy Preview
+        if: github.ref_name != 'main'
+        run: npx vercel deploy composeApp/build/dist/wasmJs/productionExecutable --token "${{ secrets.VERCEL_TOKEN }}" --yes
+
+      - name: Deploy Production
+        if: github.ref_name == 'main'
+        run: npx vercel deploy composeApp/build/dist/wasmJs/productionExecutable --token "${{ secrets.VERCEL_TOKEN }}" --yes --prod

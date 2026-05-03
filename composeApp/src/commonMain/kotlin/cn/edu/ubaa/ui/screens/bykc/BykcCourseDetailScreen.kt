@@ -2,7 +2,6 @@ package cn.edu.ubaa.ui.screens.bykc
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
@@ -17,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import cn.edu.ubaa.model.dto.BykcCourseDetailDto
 import cn.edu.ubaa.model.dto.BykcCourseDto
 import cn.edu.ubaa.model.dto.BykcCourseStatus
+import cn.edu.ubaa.model.dto.BykcAutoSelectJobDto
+import cn.edu.ubaa.model.dto.BykcAutoSelectJobStatus
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.delay
@@ -32,8 +33,12 @@ fun BykcCourseDetailScreen(
     error: String?,
     operationInProgress: Boolean,
     operationMessage: String?,
+    autoSelectJob: BykcAutoSelectJobDto? = null,
+    autoSelectLoading: Boolean = false,
     onSelectClick: () -> Unit,
     onDeselectClick: () -> Unit,
+    onEnableAutoSelectClick: () -> Unit,
+    onCancelAutoSelectClick: () -> Unit,
     onSignInClick: () -> Unit,
     onSignOutClick: () -> Unit,
     onClearMessage: () -> Unit = {},
@@ -310,6 +315,18 @@ fun BykcCourseDetailScreen(
               }
             }
 
+            if (!course.selected) {
+              item {
+                AutoSelectCard(
+                    course = course,
+                    job = autoSelectJob,
+                    isLoading = autoSelectLoading || operationInProgress,
+                    onEnable = onEnableAutoSelectClick,
+                    onCancel = onCancelAutoSelectClick,
+                )
+              }
+            }
+
             item {
               Column(
                   modifier = Modifier.fillMaxWidth(),
@@ -415,7 +432,7 @@ fun DetailCard(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-  Card(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
+  Card(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium) {
     Column(modifier = Modifier.padding(16.dp)) {
       Text(
           text = title,
@@ -425,6 +442,62 @@ fun DetailCard(
       )
       Spacer(modifier = Modifier.height(12.dp))
       content()
+    }
+  }
+}
+
+@Composable
+private fun AutoSelectCard(
+    course: BykcCourseDetailDto,
+    job: BykcAutoSelectJobDto?,
+    isLoading: Boolean,
+    onEnable: () -> Unit,
+    onCancel: () -> Unit,
+) {
+  val active =
+      job?.status == BykcAutoSelectJobStatus.PENDING ||
+          job?.status == BykcAutoSelectJobStatus.RUNNING
+  DetailCard(title = "自动抢课") {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+      Icon(
+          imageVector = Icons.Default.Bolt,
+          contentDescription = null,
+          tint = MaterialTheme.colorScheme.primary,
+      )
+      Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            text =
+                when {
+                  active -> "已设定 ${job.scheduledAt}"
+                  course.status == BykcCourseStatus.AVAILABLE -> "课程已可选，开启后会立即尝试"
+                  else -> "默认在开放选课时自动尝试"
+                },
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+        )
+        job?.message?.takeIf(String::isNotBlank)?.let { message ->
+          Text(
+              text = message,
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+      }
+      Switch(
+          checked = active,
+          enabled = !isLoading,
+          onCheckedChange = { checked ->
+            if (checked) onEnable() else onCancel()
+          },
+      )
+    }
+    if (isLoading) {
+      Spacer(modifier = Modifier.height(10.dp))
+      LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     }
   }
 }

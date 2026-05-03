@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.AssignmentTurnedIn
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.HowToReg
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -45,6 +46,7 @@ fun AdvancedFeaturesScreen(
     onCgyyClick: () -> Unit,
     onEvaluationClick: () -> Unit,
     onYgdkClick: () -> Unit,
+    onVaultClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
   val features =
@@ -66,6 +68,12 @@ fun AdvancedFeaturesScreen(
               title = "阳光打卡",
               description = "查看记录并提交体育活动打卡",
               icon = Icons.Default.WbSunny,
+          ),
+          AdvancedFeatureItem(
+              id = "vault",
+              title = "密码保险库",
+              description = "统一保存账号密码，主密码仅本地使用",
+              icon = Icons.Default.Security,
           ),
           AdvancedFeatureItem(
               id = "evaluation",
@@ -96,6 +104,7 @@ fun AdvancedFeaturesScreen(
                 "cgyy" -> onCgyyClick()
                 "ygdk" -> onYgdkClick()
                 "evaluation" -> onEvaluationClick()
+                "vault" -> onVaultClick()
               }
             },
         )
@@ -112,8 +121,9 @@ private fun AdvancedFeatureCard(
 ) {
   Card(
       modifier = modifier.fillMaxWidth().heightIn(min = 160.dp).clickable { onClick() },
-      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-      elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+      shape = MaterialTheme.shapes.medium,
+      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+      elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
   ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),

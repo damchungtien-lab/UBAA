@@ -20,6 +20,15 @@ interface BykcApiBackend {
 
   suspend fun deselectCourse(courseId: Long): Result<BykcSuccessResponse>
 
+  suspend fun getAutoSelectJobs(): Result<BykcAutoSelectJobsResponse>
+
+  suspend fun enableAutoSelect(
+      courseId: Long,
+      request: BykcAutoSelectRequest,
+  ): Result<BykcAutoSelectJobDto>
+
+  suspend fun cancelAutoSelect(courseId: Long): Result<BykcAutoSelectJobDto>
+
   suspend fun signCourse(
       courseId: Long,
       lat: Double?,
@@ -111,6 +120,21 @@ class BykcApi(
     return currentBackend().deselectCourse(courseId)
   }
 
+  suspend fun getAutoSelectJobs(): Result<BykcAutoSelectJobsResponse> {
+    return currentBackend().getAutoSelectJobs()
+  }
+
+  suspend fun enableAutoSelect(
+      courseId: Long,
+      request: BykcAutoSelectRequest = BykcAutoSelectRequest(),
+  ): Result<BykcAutoSelectJobDto> {
+    return currentBackend().enableAutoSelect(courseId, request)
+  }
+
+  suspend fun cancelAutoSelect(courseId: Long): Result<BykcAutoSelectJobDto> {
+    return currentBackend().cancelAutoSelect(courseId)
+  }
+
   /**
    * 执行博雅课程签到或签退。
    *
@@ -182,6 +206,28 @@ internal class RelayBykcApiBackend(private val apiClient: ApiClient = ApiClientP
 
   override suspend fun deselectCourse(courseId: Long): Result<BykcSuccessResponse> {
     return safeApiCall { apiClient.getClient().delete("api/v1/bykc/courses/$courseId/select") }
+  }
+
+  override suspend fun getAutoSelectJobs(): Result<BykcAutoSelectJobsResponse> {
+    return safeApiCall { apiClient.getClient().get("api/v1/bykc/auto-select/jobs") }
+  }
+
+  override suspend fun enableAutoSelect(
+      courseId: Long,
+      request: BykcAutoSelectRequest,
+  ): Result<BykcAutoSelectJobDto> {
+    return safeApiCall {
+      apiClient.getClient().post("api/v1/bykc/courses/$courseId/auto-select") {
+        contentType(ContentType.Application.Json)
+        setBody(request)
+      }
+    }
+  }
+
+  override suspend fun cancelAutoSelect(courseId: Long): Result<BykcAutoSelectJobDto> {
+    return safeApiCall {
+      apiClient.getClient().delete("api/v1/bykc/courses/$courseId/auto-select")
+    }
   }
 
   override suspend fun signCourse(

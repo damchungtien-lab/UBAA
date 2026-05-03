@@ -2,6 +2,9 @@ package cn.edu.ubaa.api
 
 import cn.edu.ubaa.model.dto.BykcCategoryStatisticsDto
 import cn.edu.ubaa.model.dto.BykcChosenCourseDto
+import cn.edu.ubaa.model.dto.BykcAutoSelectJobDto
+import cn.edu.ubaa.model.dto.BykcAutoSelectJobsResponse
+import cn.edu.ubaa.model.dto.BykcAutoSelectRequest
 import cn.edu.ubaa.model.dto.BykcCourseCategory
 import cn.edu.ubaa.model.dto.BykcCourseDetailDto
 import cn.edu.ubaa.model.dto.BykcCourseDto
@@ -197,6 +200,17 @@ internal class LocalBykcApiBackend(
         }
       }
 
+  override suspend fun getAutoSelectJobs(): Result<BykcAutoSelectJobsResponse> =
+      Result.failure(serverRelayOnlyException())
+
+  override suspend fun enableAutoSelect(
+      courseId: Long,
+      request: BykcAutoSelectRequest,
+  ): Result<BykcAutoSelectJobDto> = Result.failure(serverRelayOnlyException())
+
+  override suspend fun cancelAutoSelect(courseId: Long): Result<BykcAutoSelectJobDto> =
+      Result.failure(serverRelayOnlyException())
+
   override suspend fun signCourse(
       courseId: Long,
       lat: Double?,
@@ -217,6 +231,13 @@ internal class LocalBykcApiBackend(
           throw LocalBykcActionException("sign_failed", HttpStatusCode.BadRequest, error.message)
         }
       }
+
+  private fun serverRelayOnlyException(): ApiCallException =
+      ApiCallException(
+          message = "自动抢课需要服务器中转模式，请在连接设置中切换后重试",
+          status = HttpStatusCode.BadRequest,
+          code = "server_relay_required",
+      )
 
   private suspend fun signIn(
       client: LocalBykcClient,

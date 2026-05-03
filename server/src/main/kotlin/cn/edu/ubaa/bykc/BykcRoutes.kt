@@ -7,10 +7,13 @@ import cn.edu.ubaa.auth.LoginException
 import cn.edu.ubaa.auth.respondError
 import cn.edu.ubaa.metrics.BusinessOperationScope
 import cn.edu.ubaa.metrics.observeBusinessOperation
+import cn.edu.ubaa.model.dto.BykcAutoSelectRequest
 import cn.edu.ubaa.model.dto.BykcCoursesResponse
 import cn.edu.ubaa.model.dto.BykcSignRequest
 import cn.edu.ubaa.model.dto.BykcSuccessResponse
 import cn.edu.ubaa.model.dto.BykcUserProfileDto
+import cn.edu.ubaa.notifications.GlobalNotificationStore
+import cn.edu.ubaa.notifications.NotificationStore
 import cn.edu.ubaa.utils.UpstreamTimeoutException
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -18,11 +21,21 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.coroutines.CancellationException
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 
 /** 注册博雅课程 (BYKC) 相关路由。 包含用户信息、课程列表、统计信息、选课、退选及签到功能。 */
-fun Route.bykcRouting() {
+fun Route.bykcRouting(
+    autoSelectStoreProvider: () -> BykcAutoSelectStore = { GlobalBykcAutoSelectStore.instance },
+    notificationStoreProvider: () -> NotificationStore = { GlobalNotificationStore.instance },
+) {
   val bykcService = GlobalBykcService.instance
+  val autoSelectStore by lazy(autoSelectStoreProvider)
+  val notificationStore by lazy(notificationStoreProvider)
 
   route("/api/v1/bykc") {
 
@@ -108,6 +121,78 @@ fun Route.bykcRouting() {
     }
 
     /** POST /api/v1/bykc/courses/{courseId}/select 选课（报名）。 */
+    get("/auto-select/jobs") {
+      val username = call.jwtUsername!!
+      call.respond(HttpStatusCode.OK, autoSelectStore.listJobs(username))
+    }
+
+    post("/courses/{courseId}/auto-select") {
+      val username = call.jwtUsername!!
+      val courseId =
+          call.parameters["courseId"]?.toLongOrNull()
+              ?: return@post call.respondError(HttpStatusCode.BadRequest, "invalid_request")
+      if (courseId <= 0L) {
+        return@post call.respondError(HttpStatusCode.BadRequest, "invalid_request")
+      }
+      val request =
+          runCatching { call.receive<BykcAutoSelectRequest>() }
+              .getOrDefault(BykcAutoSelectRequest())
+
+      call.observeBusinessOperation("bykc", "schedule_auto_select") {
+        try {
+          val course = bykcService.getCourseDetail(username, courseId)
+          val scheduledInstant =
+              resolveAutoSelectInstant(request.scheduledAt, course.courseSelectStartDate)
+          if (scheduledInstant == null) {
+            markBusinessFailure()
+            call.respondError(HttpStatusCode.BadRequest, "invalid_request", "缺少可用的抢课时间")
+            return@observeBusinessOperation
+          }
+          val now = Clock.System.now()
+          val due = if (scheduledInstant < now) now else scheduledInstant
+          val job =
+              autoSelectStore.upsertJob(
+                  username = username,
+                  courseId = courseId,
+                  courseName = course.courseName,
+                  scheduledAt = scheduledInstant.toString(),
+                  dueAtEpochMillis = due.toEpochMilliseconds(),
+              )
+          call.respond(HttpStatusCode.OK, job)
+        } catch (e: Exception) {
+          call.respondBykcError(e, this)
+        }
+      }
+    }
+
+    delete("/courses/{courseId}/auto-select") {
+      val username = call.jwtUsername!!
+      val courseId =
+          call.parameters["courseId"]?.toLongOrNull()
+              ?: return@delete call.respondError(HttpStatusCode.BadRequest, "invalid_request")
+      if (courseId <= 0L) {
+        return@delete call.respondError(HttpStatusCode.BadRequest, "invalid_request")
+      }
+
+      call.observeBusinessOperation("bykc", "cancel_auto_select") {
+        val job = autoSelectStore.cancelJob(username, courseId)
+        if (job == null) {
+          markBusinessFailure()
+          call.respondError(HttpStatusCode.NotFound, "auto_select_job_not_found", "未找到自动抢课任务")
+        } else {
+          notificationStore.append(
+              username = username,
+              type = "bykc_auto_select_cancelled",
+              title = "博雅自动抢课已取消",
+              body = "${job.courseName} 的自动抢课任务已取消。",
+              actionUrl = "/",
+              payload = mapOf("courseId" to job.courseId.toString(), "jobId" to job.id),
+          )
+          call.respond(HttpStatusCode.OK, job)
+        }
+      }
+    }
+
     post("/courses/{courseId}/select") {
       val username = call.jwtUsername!!
       val courseId =
@@ -245,6 +330,22 @@ fun Route.bykcRouting() {
       }
     }
   }
+}
+
+private val bykcAutoSelectZone = TimeZone.of("Asia/Shanghai")
+
+private fun resolveAutoSelectInstant(
+    requested: String?,
+    courseSelectStartDate: LocalDateTime?,
+): Instant? {
+  requested?.trim()?.takeIf(String::isNotEmpty)?.let { value ->
+    runCatching { Instant.parse(value) }.getOrNull()?.let {
+      return it
+    }
+    return runCatching { LocalDateTime.parse(value.replace(" ", "T")).toInstant(bykcAutoSelectZone) }
+        .getOrNull()
+  }
+  return courseSelectStartDate?.toInstant(bykcAutoSelectZone) ?: Clock.System.now()
 }
 
 private suspend fun ApplicationCall.respondBykcError(

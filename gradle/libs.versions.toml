@@ -29,6 +29,7 @@ dotenv = "6.5.1"
 kover = "0.9.7"
 micrometer = "1.16.4"
 redis = "7.2.1.RELEASE"
+cryptography-kotlin = "0.6.0"
 spotless = "8.4.0"
 
 [libraries]
@@ -82,6 +83,9 @@ ktor-server-metrics-micrometer = { module = "io.ktor:ktor-server-metrics-microme
 micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer" }
 dotenv-kotlin = { module = "io.github.cdimascio:dotenv-kotlin", version.ref = "dotenv" }
 redis-kotlin = { module = "io.lettuce:lettuce-core", version.ref = "redis" }
+cryptography-core = { module = "dev.whyoleg.cryptography:cryptography-core", version.ref = "cryptography-kotlin" }
+cryptography-provider-optimal = { module = "dev.whyoleg.cryptography:cryptography-provider-optimal", version.ref = "cryptography-kotlin" }
+cryptography-random = { module = "dev.whyoleg.cryptography:cryptography-random", version.ref = "cryptography-kotlin" }
 
 
 [plugins]

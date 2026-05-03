@@ -1,5 +1,5 @@
-const SHELL_CACHE = 'ubaa-shell-v2';
-const STATIC_CACHE = 'ubaa-static-v2';
+const SHELL_CACHE = 'ubaa-shell-v3';
+const STATIC_CACHE = 'ubaa-static-v3';
 const CACHE_NAMES = [SHELL_CACHE, STATIC_CACHE];
 const APP_SHELL_ASSETS = [
     './',
@@ -56,6 +56,35 @@ self.addEventListener('fetch', (event) => {
     if (shouldCacheStaticAsset(requestUrl.pathname)) {
         event.respondWith(handleStaticAssetRequest(event, request));
     }
+});
+
+self.addEventListener('push', (event) => {
+    const payload = event.data ? event.data.json() : {};
+    const title = payload.title || 'UBAA 通知';
+    const options = {
+        body: payload.body || '',
+        icon: './pwa-icon-192.png',
+        badge: './pwa-icon-192.png',
+        data: { url: payload.actionUrl || './' }
+    };
+    event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    const url = event.notification.data && event.notification.data.url
+        ? event.notification.data.url
+        : './';
+    event.waitUntil((async () => {
+        const allClients = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+        const absoluteUrl = new URL(url, self.location.origin).href;
+        for (const client of allClients) {
+            if (client.url === absoluteUrl && 'focus' in client) {
+                return client.focus();
+            }
+        }
+        return clients.openWindow(absoluteUrl);
+    })());
 });
 
 async function handleNavigationRequest(request) {

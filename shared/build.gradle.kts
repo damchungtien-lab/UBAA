@@ -81,6 +81,9 @@ kotlin {
       implementation(libs.ktor.client.auth)
       implementation(libs.multiplatform.settings)
       implementation(libs.multiplatform.settings.no.arg)
+      implementation(libs.cryptography.core)
+      implementation(libs.cryptography.provider.optimal)
+      implementation(libs.cryptography.random)
     }
 
     // 平台特定引擎实现

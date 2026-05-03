@@ -10,6 +10,7 @@ import cn.edu.ubaa.auth.JwtAuth
 import cn.edu.ubaa.auth.JwtAuth.configureJwtAuth
 import cn.edu.ubaa.auth.authRouting
 import cn.edu.ubaa.auth.configureGlobalErrorHandling
+import cn.edu.ubaa.bykc.GlobalBykcAutoSelectScheduler
 import cn.edu.ubaa.bykc.GlobalBykcService
 import cn.edu.ubaa.bykc.bykcRouting
 import cn.edu.ubaa.cgyy.GlobalCgyyService
@@ -23,6 +24,7 @@ import cn.edu.ubaa.metrics.AppObservability
 import cn.edu.ubaa.metrics.GaugeBindings
 import cn.edu.ubaa.metrics.LoginMetricsRecorder
 import cn.edu.ubaa.metrics.RedisLoginStatsStore
+import cn.edu.ubaa.notifications.notificationRouting
 import cn.edu.ubaa.schedule.scheduleRouting
 import cn.edu.ubaa.signin.SigninService
 import cn.edu.ubaa.signin.signinRouting
@@ -30,6 +32,7 @@ import cn.edu.ubaa.spoc.GlobalSpocService
 import cn.edu.ubaa.spoc.spocRouting
 import cn.edu.ubaa.user.userRouting
 import cn.edu.ubaa.utils.HeadlessImageSupport
+import cn.edu.ubaa.vault.vaultRouting
 import cn.edu.ubaa.version.AppVersionService
 import cn.edu.ubaa.version.GlobalAppVersionService
 import cn.edu.ubaa.version.appVersionRouting
@@ -179,6 +182,8 @@ internal fun Application.module(
       delay(15.seconds)
     }
   }
+  runCatching { GlobalBykcAutoSelectScheduler.instance.start(cleanupScope) }
+      .onFailure { log.warn("BYKC auto-select scheduler was not started", it) }
   cleanupScope.launch {
     while (isActive) {
       delay(5.minutes)
@@ -248,6 +253,8 @@ internal fun Application.module(
       userRouting()
       scheduleRouting()
       bykcRouting()
+      notificationRouting()
+      vaultRouting()
       examRouting()
       signinRouting()
       classroomRouting()

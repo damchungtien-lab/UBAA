@@ -105,8 +105,9 @@ fun RegularFeaturesScreen(
 private fun FeatureCard(feature: FeatureItem, onClick: () -> Unit, modifier: Modifier = Modifier) {
   Card(
       modifier = modifier.fillMaxWidth().heightIn(min = 160.dp).clickable { onClick() },
-      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-      elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+      shape = MaterialTheme.shapes.medium,
+      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+      elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
   ) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(16.dp),

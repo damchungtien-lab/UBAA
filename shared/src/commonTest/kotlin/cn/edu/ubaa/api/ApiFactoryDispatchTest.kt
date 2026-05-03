@@ -257,6 +257,15 @@ private class FakeBykcApiBackend : BykcApiBackend {
 
   override suspend fun deselectCourse(courseId: Long) = error("unused")
 
+  override suspend fun getAutoSelectJobs() = error("unused")
+
+  override suspend fun enableAutoSelect(
+      courseId: Long,
+      request: cn.edu.ubaa.model.dto.BykcAutoSelectRequest,
+  ) = error("unused")
+
+  override suspend fun cancelAutoSelect(courseId: Long) = error("unused")
+
   override suspend fun signCourse(courseId: Long, lat: Double?, lng: Double?, signType: Int) =
       error("unused")
 }
