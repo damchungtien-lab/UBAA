@@ -383,9 +383,10 @@ fun BykcCourseDetailScreen(
                     Text("退选")
                   }
                 } else {
+                  val startDate = course.courseSelectStartDate
                   val isPreview =
-                      course.courseSelectStartDate != null &&
-                          localNow < course.courseSelectStartDate
+                      startDate != null &&
+                          localNow < startDate
                   if (isPreview && onAutoBookClick != null) {
                     if (hasAutoBookTask) {
                       OutlinedButton(
